@@ -2456,6 +2456,15 @@ document.addEventListener("submit", (event) => {
   saveMetadata(form);
 });
 elements.inspector.addEventListener("scroll", updateInspectorNav, { passive: true });
+document.addEventListener(
+  "toggle",
+  (event) => {
+    if (event.target instanceof HTMLDetailsElement && event.target.matches(".metadata-disclosure")) {
+      state.metadataEditing = event.target.open;
+    }
+  },
+  true,
+);
 
 document.addEventListener("click", async (event) => {
   const target = event.target;
