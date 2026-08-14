@@ -31,6 +31,7 @@ const state = {
   syntheticAssets: [],
   inspectorReturnFocus: null,
   inspectorReturnAssetId: null,
+  metadataEditing: false,
 };
 
 const elements = {
@@ -1051,6 +1052,8 @@ function updateNavState() {
     if (active) button.setAttribute("aria-current", "page");
     else button.removeAttribute("aria-current");
   });
+  const active = elements.primaryNav.querySelector("[aria-current='page']");
+  active?.scrollIntoView({ block: "nearest", inline: "center" });
 }
 
 function renderCollectionNav() {
@@ -1276,12 +1279,10 @@ function renderPalette(palette) {
       ${palette
         .map(
           (swatch) => `
-            <div class="swatch" title="${escapeHTML(
-              swatch.name || swatch.hex,
-            )}">
+            <button class="swatch" type="button" data-copy-swatch="${escapeHTML(swatch.hex)}" aria-label="复制色票 ${escapeHTML(swatch.hex)}" title="复制 ${escapeHTML(swatch.hex)}">
               ${renderSwatchColor(swatch.hex)}
               <code>${escapeHTML(swatch.hex)}</code>
-            </div>`,
+            </button>`,
         )
         .join("")}
     </div>`;
@@ -1306,10 +1307,10 @@ function renderPromptBlock(label, key, value) {
     <div class="prompt-block">
       <div class="prompt-label">
         <span>${escapeHTML(label)}</span>
-        <button class="prompt-copy" type="button" data-copy-prompt="${escapeHTML(key)}">
+        <span class="prompt-actions"><button class="prompt-toggle" type="button" data-toggle-prompt="${escapeHTML(key)}" aria-expanded="false">展开全文</button><button class="prompt-copy" type="button" data-copy-prompt="${escapeHTML(key)}">
           <svg class="icon" aria-hidden="true"><use href="#icon-copy"></use></svg>
           复制
-        </button>
+        </button></span>
       </div>
       <pre class="prompt-text">${escapeHTML(value)}</pre>
     </div>`;
@@ -1465,9 +1466,17 @@ function renderInspector() {
         <h2>${escapeHTML(asset.title)}</h2>
       </div>
       <button class="icon-button" type="button" data-close-inspector aria-label="关闭详细检视">
+        <span class="inspector-back-label">返回素材库</span>
         <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
       </button>
     </div>
+
+    <nav class="inspector-nav" aria-label="检查器章节">
+      <button type="button" data-inspector-jump="overview">概览</button>
+      <button type="button" data-inspector-jump="visual">视觉分析</button>
+      <button type="button" data-inspector-jump="implementation">实作输出</button>
+      <button type="button" data-inspector-jump="management">资料管理</button>
+    </nav>
 
     ${
       asset.synthetic
@@ -1475,6 +1484,8 @@ function renderInspector() {
         : ""
     }
 
+    <section class="inspector-section inspector-overview" id="inspector-overview">
+    <div class="inspector-section-heading"><h3>概览 <span class="section-tag section-tag--preview">预览</span></h3><span class="section-index">O01</span></div>
     <figure class="inspector-preview">
       ${
         imageUrl
@@ -1509,17 +1520,21 @@ function renderInspector() {
         : ""
     }
 
-    <section class="inspector-section">
+    <p class="analysis-summary">${escapeHTML(analysis.description || "尚未建立分析摘要；送交 Codex 后会在这里显示。")}</p>
+    <div class="inspector-mobile-actions" aria-label="主要操作">
+      <button class="button button--primary" type="button" data-copy-prompt="visual" ${analysis.prompts.visual ? "" : "disabled"}>复制 Prompt</button>
+      ${asset.synthetic ? "" : '<button class="button button--quiet" type="button" data-open-metadata>编辑 metadata</button>'}
+    </div>
+    </section>
+
+    <section class="inspector-section" id="inspector-visual">
       <div class="inspector-section-heading">
-        <h3>Visual DNA</h3>
+        <h3>视觉分析 <span class="section-tag section-tag--visual">视觉 DNA</span></h3>
         <span class="section-index">A01</span>
       </div>
       ${
         hasAnalysis
           ? `
-            <p class="analysis-summary">${escapeHTML(
-              analysis.description || "Codex 已完成结构化分析。",
-            )}</p>
             ${visualDnaRows(analysis.visualDna, analysis.data)}
           `
           : `
@@ -1530,7 +1545,7 @@ function renderInspector() {
       }
     </section>
 
-    <section class="inspector-section">
+    <section class="inspector-section inspector-section--sub">
       <div class="inspector-section-heading">
         <h3>色票</h3>
         <span class="section-index">A02</span>
@@ -1538,7 +1553,7 @@ function renderInspector() {
       ${renderPalette(analysis.palette)}
     </section>
 
-    <section class="inspector-section">
+    <section class="inspector-section inspector-section--sub">
       <div class="inspector-section-heading">
         <h3>为何有效</h3>
         <span class="section-index">A03</span>
@@ -1546,15 +1561,15 @@ function renderInspector() {
       ${renderList(analysis.whyItWorks, "evidence-list", "尚未产生设计判读。")}
     </section>
 
-    <section class="inspector-section">
+    <section class="inspector-section" id="inspector-implementation">
       <div class="inspector-section-heading">
-        <h3>实作 recipe</h3>
+        <h3>实作输出 <span class="section-tag section-tag--codex">用于 Codex</span></h3>
         <span class="section-index">A04</span>
       </div>
       ${renderList(analysis.recipe, "recipe-list", "尚未产生实作步骤。")}
     </section>
 
-    <section class="inspector-section">
+    <section class="inspector-section inspector-section--sub">
       <div class="inspector-section-heading">
         <h3>Prompt Kit</h3>
         <span class="section-index">A05</span>
@@ -1577,26 +1592,26 @@ function renderInspector() {
       )}
     </section>
 
-    <section class="inspector-section">
-      <div class="inspector-section-heading">
-        <h3>来源与分析证据</h3>
+      <section class="inspector-section" id="inspector-management">
+        <div class="inspector-section-heading">
+        <h3>资料管理 <span class="section-tag section-tag--source">来源与资料</span></h3>
         <span class="section-index">A06</span>
       </div>
-      <dl class="provenance-list">
+      <details class="technical-evidence"><summary>展开技术证据</summary><dl class="provenance-list">
         <div><dt>相对路径</dt><dd>${escapeHTML(asset.relativePath || "—")}</dd></div>
         <div><dt>档案大小</dt><dd>${escapeHTML(formatBytes(asset.fileSize))}</dd></div>
         <div><dt>杂凑</dt><dd>${escapeHTML(asset.hash || "—")}</dd></div>
         <div><dt>Codex 模型</dt><dd>${escapeHTML(analysis.model || "—")}</dd></div>
         <div><dt>Prompt 版</dt><dd>${escapeHTML(analysis.promptVersion || "—")}</dd></div>
         <div><dt>分析时间</dt><dd>${escapeHTML(formatDate(analysis.analyzedAt))}</dd></div>
-      </dl>
+      </dl></details>
     </section>
 
     ${
       asset.synthetic
         ? ""
         : `
-      <section class="inspector-section">
+      <section class="inspector-section inspector-section--sub">
         <div class="inspector-section-heading">
           <h3>收藏集</h3>
           <span class="section-index">A07</span>
@@ -1604,11 +1619,8 @@ function renderInspector() {
         ${renderCollectionControls(asset)}
       </section>
 
-      <section class="inspector-section">
-        <div class="inspector-section-heading">
-          <h3>编辑 metadata</h3>
-          <span class="section-index">A08</span>
-        </div>
+      <details class="inspector-section metadata-disclosure" ${state.metadataEditing ? "open" : ""}>
+          <summary><span>编辑 metadata</span><span>展开编辑</span></summary>
         <form class="metadata-form" data-metadata-form="${escapeHTML(asset.id)}">
           <label class="field">
             <span>标题</span>
@@ -1634,10 +1646,28 @@ function renderInspector() {
             <button class="button button--primary" type="submit">储存 metadata</button>
           </div>
         </form>
-      </section>`
+      </details>`
     }`;
 
   updateAnalyzeControls();
+  requestAnimationFrame(updateInspectorNav);
+}
+
+function updateInspectorNav() {
+  const buttons = [...elements.inspector.querySelectorAll("[data-inspector-jump]")];
+  if (!buttons.length) return;
+  const scrollTop = elements.inspector.scrollTop + 132;
+  let current = "overview";
+  for (const button of buttons) {
+    const section = document.querySelector(`#inspector-${button.dataset.inspectorJump}`);
+    if (section && section.offsetTop <= scrollTop) current = button.dataset.inspectorJump;
+  }
+  buttons.forEach((button) => {
+    const active = button.dataset.inspectorJump === current;
+    button.classList.toggle("is-current", active);
+    if (active) button.setAttribute("aria-current", "location");
+    else button.removeAttribute("aria-current");
+  });
 }
 
 function currentAnalyzeIds() {
@@ -1845,6 +1875,7 @@ async function refreshProvider() {
 }
 
 async function selectAsset(id, { scroll = false } = {}) {
+  if (state.selectedId !== id) state.metadataEditing = false;
   const initial = assetById(id);
   if (!initial) return;
   const shouldMoveFocus = state.selectedId !== id && isMobileInspector();
@@ -2116,6 +2147,7 @@ async function scanFolder() {
 }
 
 async function saveMetadata(form) {
+  state.metadataEditing = true;
   const id = form.dataset.metadataForm;
   const submit = form.querySelector('[type="submit"]');
   const original = submit.textContent;
@@ -2423,6 +2455,7 @@ document.addEventListener("submit", (event) => {
   event.preventDefault();
   saveMetadata(form);
 });
+elements.inspector.addEventListener("scroll", updateInspectorNav, { passive: true });
 
 document.addEventListener("click", async (event) => {
   const target = event.target;
@@ -2509,6 +2542,42 @@ document.addEventListener("click", async (event) => {
   const copyButton = target.closest("[data-copy-prompt]");
   if (copyButton) {
     await copyPrompt(copyButton.dataset.copyPrompt);
+    return;
+  }
+
+  const swatchButton = target.closest("[data-copy-swatch]");
+  if (swatchButton) {
+    try {
+      await navigator.clipboard.writeText(swatchButton.dataset.copySwatch);
+      notify(`已复制色值 ${swatchButton.dataset.copySwatch}。`);
+    } catch (error) {
+      notify(`无法复制色值：${error.message}`, "error");
+    }
+    return;
+  }
+
+  const promptToggle = target.closest("[data-toggle-prompt]");
+  if (promptToggle) {
+    const block = promptToggle.closest(".prompt-block");
+    const expanded = block.classList.toggle("is-expanded");
+    promptToggle.setAttribute("aria-expanded", String(expanded));
+    promptToggle.textContent = expanded ? "收起" : "展开全文";
+    return;
+  }
+
+  const sectionJump = target.closest("[data-inspector-jump]");
+  if (sectionJump) {
+    const section = document.querySelector(`#inspector-${sectionJump.dataset.inspectorJump}`);
+    section?.scrollIntoView({ block: "start", behavior: "smooth" });
+    requestAnimationFrame(updateInspectorNav);
+    return;
+  }
+
+  const metadataButton = target.closest("[data-open-metadata]");
+  if (metadataButton) {
+    state.metadataEditing = true;
+    renderInspector();
+    requestAnimationFrame(() => document.querySelector(".metadata-disclosure")?.scrollIntoView({ block: "start", behavior: "smooth" }));
     return;
   }
 
