@@ -153,7 +153,7 @@ before(async () => {
   temporaryRoot = await mkdtemp(
     path.join(os.tmpdir(), "stylebase-codex-agent-test-"),
   );
-  fakeLauncherPath = path.join(temporaryRoot, "fake-codex.js");
+  fakeLauncherPath = path.join(temporaryRoot, "fake-codex.cjs");
   imagePath = path.join(temporaryRoot, "reference.png");
 
   await writeFile(fakeLauncherPath, FAKE_CODEX_LAUNCHER, "utf8");

@@ -1,4 +1,5 @@
 import { readFile, readdir, stat } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -62,12 +63,26 @@ const requiredFiles = [
 ];
 
 const files = await walk(root);
+const distributableFiles = (() => {
+  try {
+    return execFileSync(
+      "git",
+      ["ls-files", "--cached", "--others", "--exclude-standard"],
+      { cwd: root, encoding: "utf8" },
+    )
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .sort();
+  } catch {
+    return files;
+  }
+})();
 
 for (const file of requiredFiles) {
   check(files.includes(file), `缺少必要檔案：${file}`);
 }
 
-const forbiddenFiles = files.filter(
+const forbiddenFiles = distributableFiles.filter(
   (file) =>
     file === ".env" ||
     file.startsWith("data/") ||

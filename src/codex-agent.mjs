@@ -69,7 +69,7 @@ async function resolveLauncher(configuration = {}) {
 
   for (const candidate of candidates) {
     if (await fileExists(candidate)) {
-      if (candidate.toLowerCase().endsWith(".js")) {
+      if (/\.c?js$/i.test(candidate)) {
         return {
           command: process.execPath,
           prefix: [candidate],
