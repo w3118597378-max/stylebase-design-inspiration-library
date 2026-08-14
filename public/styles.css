@@ -16,7 +16,7 @@
   --amber: #9d6900;
   --yellow: #ffd51d;
   --yellow-soft: #fff0a6;
-  --queue-height: 108px;
+  --queue-height: 144px;
   --rail-width: 184px;
   --topbar-brand-width: 342px;
   --inspector-width: 372px;
@@ -1506,10 +1506,13 @@ svg {
   font-size: 11px;
 }
 
+/* ── Bottom Codex queue ─────────────────────────────────────────── */
+
 .queue-bar {
   grid-area: queue;
   display: grid;
-  grid-template-columns: 190px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 34px minmax(0, 1fr);
   min-width: 0;
   min-height: 0;
   border-top: 3px solid var(--graphite);
@@ -1517,13 +1520,12 @@ svg {
 }
 
 .queue-summary {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-content: center;
-  gap: 3px 8px;
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   min-width: 0;
-  border-right: 2px solid var(--graphite);
-  padding: 11px 14px;
+  padding: 0 14px;
   text-align: left;
 }
 
@@ -1532,32 +1534,43 @@ svg {
 }
 
 .queue-summary-label {
-  display: flex;
-  grid-column: 1 / -1;
+  display: inline-flex;
   align-items: center;
   gap: 7px;
+  font-size: 12px;
   font-weight: 750;
+  white-space: nowrap;
 }
 
 .queue-summary strong {
-  color: var(--blue-deep);
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 27px;
+  height: 21px;
+  padding: 0 6px;
+  border: 2px solid var(--graphite);
+  border-radius: 6px 8px 5px 7px;
+  color: var(--graphite);
+  background: var(--yellow);
+  box-shadow: 1px 1px 0 rgb(25 23 21 / 18%);
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .queue-summary > span:not(.queue-summary-label) {
   min-width: 0;
-  align-self: center;
   overflow: hidden;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .queue-chevron {
-  position: absolute;
-  margin: 7px 0 0 152px;
+  flex: none;
+  margin-left: auto;
   transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1565,65 +1578,135 @@ svg {
   transform: rotate(180deg);
 }
 
+.queue-actions {
+  grid-area: 1 / 2;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
 .queue-track {
+  grid-area: 2 / 1 / 3 / -1;
   display: flex;
   min-width: 0;
   gap: 9px;
   overflow-x: auto;
-  padding: 8px;
+  padding: 10px 8px 8px;
   background: var(--paper-muted);
   scrollbar-color: var(--rule-strong) var(--paper);
 }
 
 .queue-job {
+  position: relative;
   display: grid;
-  min-width: 190px;
-  max-width: 260px;
-  flex: 1 0 190px;
-  grid-template-columns: 52px minmax(0, 1fr) 42px;
-  gap: 9px;
+  flex: 0 0 238px;
+  min-width: 238px;
+  height: 90px;
+  grid-template-columns: 56px minmax(0, 1fr) 64px;
+  gap: 8px;
   border: 2px solid var(--graphite);
-  border-radius: 7px 10px 6px 9px;
+  border-radius: 8px 11px 7px 10px;
   padding: 8px;
+  overflow: visible;
   background: var(--paper-raised);
+  box-shadow: 2px 3px 0 rgb(25 23 21 / 16%);
+  transition: transform 120ms ease-out;
 }
-.queue-mascot { align-self: end; width: 42px; height: 42px; object-fit: contain; }
 
-.queue-job img,
+.queue-job:hover {
+  transform: translateY(-1px);
+}
+
+/* Decorative inspiration card, first in the track, same row as the jobs */
+.queue-fancy {
+  flex: 0 0 171px;
+  min-width: 171px;
+  height: 90px;
+  align-self: stretch;
+  margin: 0;
+  border: 2px solid var(--graphite);
+  border-radius: 8px 11px 7px 10px;
+  overflow: hidden;
+  background: var(--paper-raised);
+  box-shadow: 2px 3px 0 rgb(25 23 21 / 16%);
+  transition: transform 120ms ease-out;
+}
+
+.queue-fancy:hover {
+  transform: translateY(-1px);
+}
+
+.queue-fancy-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.queue-thumbnail,
 .queue-placeholder-thumb {
-  width: 52px;
+  width: 56px;
   height: 70px;
   border: 1px solid var(--rule);
   object-fit: cover;
   background: var(--paper-muted);
 }
 
+.queue-role {
+  align-self: end;
+  justify-self: end;
+  z-index: 1;
+  width: 64px;
+  height: 64px;
+  /* Lift the character so its head clears the card's top border by ~4px,
+     matching the approved design where the role pokes out of the card. */
+  margin-bottom: 25px;
+  border: 0;
+  background: transparent;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: none;
+}
+
 .queue-job-info {
   min-width: 0;
 }
 
-.queue-job strong {
-  display: block;
+.queue-job-title {
+  display: -webkit-box;
   overflow: hidden;
-  margin-bottom: 3px;
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-bottom: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
-.job-meta {
+.queue-status-row {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  color: var(--muted);
-  font-size: 9px;
+  gap: 6px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
+.queue-stage {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.queue-percent {
+  color: var(--graphite);
+  font-weight: 750;
+}
+
 .job-progress {
-  height: 7px;
-  border: 1px solid var(--graphite);
-  border-radius: 8px;
-  margin-top: 7px;
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  margin-top: 6px;
   background: var(--rule);
 }
 
@@ -1632,7 +1715,7 @@ svg {
   width: var(--progress, 0%);
   height: 100%;
   border-radius: inherit;
-  background: var(--blue);
+  background: var(--queue-accent, var(--blue));
 }
 
 .job-progress.is-indeterminate {
@@ -1640,7 +1723,8 @@ svg {
 }
 
 .job-progress.is-indeterminate > span {
-  animation: queue-scan 1.1s ease-in-out infinite alternate;
+  min-width: 40%;
+  animation: queue-scan 1.15s ease-in-out infinite alternate;
 }
 
 @keyframes queue-scan {
@@ -1652,36 +1736,130 @@ svg {
   }
 }
 
-.queue-job[data-status="failed"] .job-progress > span,
-.queue-job[data-status="needs_setup"] .job-progress > span {
-  background: var(--red);
+/* Four visual states: the accent drives the bar, the role carries the mood */
+.queue-job[data-queue-kind="analyzing"] {
+  --queue-accent: var(--blue);
+}
+
+.queue-job[data-queue-kind="waiting"] {
+  --queue-accent: var(--yellow);
+}
+
+.queue-job[data-queue-kind="complete"] {
+  --queue-accent: var(--green);
+}
+
+.queue-job[data-queue-kind="error"] {
+  --queue-accent: var(--red);
+}
+
+/* One-shot role entrances; continuous breathing only for active work */
+.queue-job.is-kind-enter[data-queue-kind="waiting"] .queue-role {
+  animation: queue-swing 0.45s ease-out;
+  transform-origin: center bottom;
+}
+
+.queue-job.is-kind-enter[data-queue-kind="complete"] .queue-role {
+  animation: queue-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center bottom;
+}
+
+.queue-job.is-kind-enter[data-queue-kind="error"] .queue-role {
+  animation: queue-flash 0.5s ease-out;
+}
+
+.queue-job[data-queue-kind="analyzing"] .queue-role {
+  animation: queue-breathe 2.8s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes queue-swing {
+  0% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(-4deg);
+  }
+  60% {
+    transform: rotate(3deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes queue-pop {
+  0% {
+    transform: scale(0.86);
+  }
+  55% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes queue-flash {
+  0% {
+    opacity: 0.35;
+  }
+  45% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes queue-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
 }
 
 .job-error {
   display: -webkit-box;
-  margin-top: 5px;
+  margin-top: 4px;
   overflow: hidden;
   color: var(--red);
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 
+.queue-job-date {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 9.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-shell:not(.is-queue-expanded) .queue-job-date {
+  display: none;
+}
+
 .queue-empty {
   display: grid;
+  flex: 1;
   min-width: 100%;
   place-items: center;
   padding: 16px;
   border: 2px dashed var(--graphite);
   color: var(--muted);
   background: var(--paper-raised);
-}
-
-.queue-actions {
-  display: flex;
-  align-items: center;
-  border-left: 1px solid var(--rule);
-  padding: 10px;
 }
 
 .is-queue-expanded .queue-track {
@@ -1691,7 +1869,17 @@ svg {
 }
 
 .is-queue-expanded .queue-job {
-  flex: 0 1 250px;
+  flex: 0 1 238px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .queue-role,
+  .job-progress.is-indeterminate > span {
+    animation: none !important;
+  }
+  .queue-job {
+    transition: none;
+  }
 }
 
 .sheet-dialog {
@@ -1954,9 +2142,40 @@ svg {
   }
 }
 
+@media (max-width: 1180px) {
+  .queue-job {
+    flex: 0 0 214px;
+    min-width: 214px;
+    height: 86px;
+    grid-template-columns: 52px minmax(0, 1fr) 56px;
+  }
+
+  .queue-fancy {
+    flex-basis: 154px;
+    min-width: 154px;
+    height: 86px;
+  }
+
+  .queue-role {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 22px;
+  }
+
+  .queue-thumbnail,
+  .queue-placeholder-thumb {
+    width: 52px;
+    height: 66px;
+  }
+
+  .is-queue-expanded .queue-job {
+    flex: 0 1 214px;
+  }
+}
+
 @media (max-width: 920px) {
   :root {
-    --queue-height: 82px;
+    --queue-height: 136px;
     --topbar-height: 132px;
   }
 
@@ -2081,14 +2300,11 @@ svg {
   }
 
   .queue-actions {
-    position: absolute;
-    z-index: 4;
-    top: 7px;
-    right: 8px;
+    position: static;
     display: flex;
     border-left: 0;
-    padding: 0;
-    background: var(--paper-raised);
+    padding: 0 10px;
+    background: transparent;
   }
 
   .queue-actions:has(#retry-needs-setup-button[hidden]) {
@@ -2096,29 +2312,48 @@ svg {
   }
 
   .queue-job {
-    min-width: 150px;
-    grid-template-columns: 40px minmax(0, 1fr) 34px;
-    padding: 6px;
+    flex: 0 0 196px;
+    min-width: 196px;
+    height: 82px;
+    grid-template-columns: 46px minmax(0, 1fr) 50px;
+    gap: 7px;
+    padding: 7px;
   }
-  .queue-mascot { width: 34px; height: 34px; }
 
-  .queue-job img,
+  .queue-fancy {
+    flex-basis: 141px;
+    min-width: 141px;
+    height: 82px;
+  }
+
+  .queue-role {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 25px;
+  }
+
+  .queue-thumbnail,
   .queue-placeholder-thumb {
-    width: 40px;
-    height: 54px;
+    width: 46px;
+    height: 60px;
+  }
+
+  .is-queue-expanded .queue-job {
+    flex: 0 1 196px;
   }
 
   .queue-summary {
-    padding: 7px 10px;
+    padding: 0 10px;
   }
 
-  .queue-chevron {
-    margin-left: 136px;
+  .queue-summary > span:not(.queue-summary-label) {
+    display: none;
   }
 }
 
 @media (max-width: 640px) {
   :root {
+    --queue-height: 130px;
     --topbar-height: 132px;
   }
 
@@ -2255,25 +2490,55 @@ svg {
     grid-column: 1;
   }
 
-  .queue-bar {
-    grid-template-columns: 135px minmax(0, 1fr);
+  .queue-job {
+    flex: 0 0 180px;
+    min-width: 180px;
+    height: 78px;
+    grid-template-columns: 40px minmax(0, 1fr) 46px;
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .queue-fancy {
+    flex-basis: 130px;
+    min-width: 130px;
+    height: 78px;
+  }
+
+  .queue-role {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 27px;
+  }
+
+  .queue-thumbnail,
+  .queue-placeholder-thumb {
+    width: 40px;
+    height: 54px;
+  }
+
+  .is-queue-expanded .queue-job {
+    flex: 0 1 180px;
   }
 
   .queue-summary {
-    grid-template-columns: auto 1fr;
+    gap: 7px;
+    padding: 0 10px;
   }
 
   .queue-summary-label {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .queue-summary strong {
-    font-size: 15px;
+    min-width: 24px;
+    height: 19px;
+    font-size: 11px;
   }
 
-  .queue-chevron,
-  .queue-summary > span:not(.queue-summary-label) {
-    display: none;
+  .queue-track {
+    gap: 7px;
+    padding: 8px 6px 6px;
   }
 
   .sheet-dialog {

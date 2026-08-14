@@ -3,7 +3,11 @@ import {
   renderSwatchColor,
   safeHexColor as safeColor,
 } from "./palette-swatch.js";
-import { queueRoleForStatus } from "./queue-role.js";
+import {
+  queueKindForStatus,
+  queueProgress,
+  queueRoleForStatus,
+} from "./queue-role.js";
 
 const state = {
   loading: true,
@@ -1699,12 +1703,6 @@ function jobAsset(job) {
   return assetById(job.assetId);
 }
 
-function jobProgress(job) {
-  if (job.progress === null) return null;
-  const value = job.progress <= 1 ? job.progress * 100 : job.progress;
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
-
 function renderQueue() {
   const jobs = [...state.jobs].sort((a, b) => {
     const rank = (job) =>
@@ -1731,42 +1729,74 @@ function renderQueue() {
     return;
   }
 
-  elements.queueTrack.innerHTML = jobs
-    .map((job) => {
+  const previousKinds = state.queueKinds || {};
+  const nextKinds = {};
+
+  elements.queueTrack.innerHTML = [
+    `<figure class="queue-fancy" aria-hidden="true">
+      <img class="queue-fancy-img" src="/assets/illustrations/d38e6aaf-9fb2-4a87-9b16-63a0cdffa51a.png" alt="" />
+    </figure>`,
+    ...jobs.map((job) => {
       const asset = jobAsset(job);
-      const progress = jobProgress(job);
-      const indeterminate = progress === null && statusIsActive(job.status);
+      const kind = queueKindForStatus(job.status);
+      const progress = queueProgress(job.status, job.progress);
       const stage = job.stage || stateLabel(job.status);
       const imageUrl = safeMediaUrl(asset?.mediaUrl);
-      const mascot = queueRoleForStatus(job.status);
+      const role = queueRoleForStatus(job.status);
+      const entering = previousKinds[job.id] !== kind;
+      nextKinds[job.id] = kind;
+      const progressClass = progress.indeterminate ? "is-indeterminate" : "";
+      const progressAria = progress.indeterminate
+        ? `role="progressbar" aria-label="${escapeHTML(stage)}" aria-valuemin="0" aria-valuemax="100"`
+        : `role="progressbar" aria-label="${escapeHTML(stage)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress.value}"`;
+      const dateValue = job.completedAt || job.createdAt;
       return `
-        <article class="queue-job" data-status="${escapeHTML(job.status)}">
+        <article
+          class="queue-job${entering ? " is-kind-enter" : ""}"
+          data-status="${escapeHTML(job.status)}"
+          data-queue-kind="${kind}"
+        >
           ${
             imageUrl
-              ? `<img src="${escapeHTML(imageUrl)}" alt="" loading="lazy" />`
+              ? `<img class="queue-thumbnail" src="${escapeHTML(imageUrl)}" alt="" loading="lazy" />`
               : '<span class="queue-placeholder-thumb" aria-hidden="true"></span>'
           }
-          <img class="queue-mascot" src="${mascot}" alt="" aria-hidden="true" />
           <div class="queue-job-info">
-            <strong>${escapeHTML(asset?.title || `影像 ${job.assetId || "—"}`)}</strong>
-            <div class="job-meta">
-              <span>${escapeHTML(stage)}</span>
-              <span>${progress === null ? "" : `${progress}%`}</span>
+            <strong class="queue-job-title">${escapeHTML(
+              asset?.title || `影像 ${job.assetId || "—"}`,
+            )}</strong>
+            <div class="queue-status-row">
+              <span class="queue-stage">${escapeHTML(stage)}</span>
+              <span class="queue-percent">${
+                progress.indeterminate ? "" : `${progress.value}%`
+              }</span>
             </div>
-            <div class="job-progress ${indeterminate ? "is-indeterminate" : ""}" aria-label="${escapeHTML(
-              stage,
-            )}">
-              <span style="--progress:${progress === null ? 28 : progress}%"></span>
+            <div class="job-progress ${progressClass}" ${progressAria}>
+              <span data-progress="${progress.value === null ? "" : progress.value}"></span>
             </div>
             ${
               job.error
                 ? `<p class="job-error">${escapeHTML(job.error)}</p>`
                 : ""
             }
+            ${
+              dateValue
+                ? `<time class="queue-job-date">${escapeHTML(formatDate(dateValue))}</time>`
+                : ""
+            }
           </div>
+          <img class="queue-role" src="${role}" alt="" aria-hidden="true" />
         </article>`;
-    })
-    .join("");
+    }),
+  ].join("");
+  state.queueKinds = nextKinds;
+
+  // CSP style-src 'self' blocks inline style attributes, so the fill width is
+  // applied through the CSSOM, which is not subject to style-src.
+  elements.queueTrack.querySelectorAll(".job-progress > span").forEach((span) => {
+    if (span.dataset.progress === "") return;
+    span.style.setProperty("--progress", `${span.dataset.progress}%`);
+  });
 
   renderCounts();
 }
