@@ -3,6 +3,7 @@ import {
   renderSwatchColor,
   safeHexColor as safeColor,
 } from "./palette-swatch.js";
+import { queueRoleForStatus } from "./queue-role.js";
 
 const state = {
   loading: true,
@@ -1737,13 +1738,7 @@ function renderQueue() {
       const indeterminate = progress === null && statusIsActive(job.status);
       const stage = job.stage || stateLabel(job.status);
       const imageUrl = safeMediaUrl(asset?.mediaUrl);
-      const mascot = ["failed", "needs_setup"].includes(job.status)
-        ? "mascot-error.png"
-        : ["complete", "completed", "ready"].includes(job.status)
-          ? "mascot-complete.png"
-          : ["queued", "pending"].includes(job.status)
-            ? "mascot-waiting.png"
-            : "mascot-analyzing.png";
+      const mascot = queueRoleForStatus(job.status);
       return `
         <article class="queue-job" data-status="${escapeHTML(job.status)}">
           ${
@@ -1751,7 +1746,7 @@ function renderQueue() {
               ? `<img src="${escapeHTML(imageUrl)}" alt="" loading="lazy" />`
               : '<span class="queue-placeholder-thumb" aria-hidden="true"></span>'
           }
-          <img class="queue-mascot" src="/assets/illustrations/${mascot}" alt="" aria-hidden="true" />
+          <img class="queue-mascot" src="${mascot}" alt="" aria-hidden="true" />
           <div class="queue-job-info">
             <strong>${escapeHTML(asset?.title || `影像 ${job.assetId || "—"}`)}</strong>
             <div class="job-meta">
