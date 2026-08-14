@@ -1,10 +1,10 @@
 <!doctype html>
 <!--
-THESIS: Stylebase is a local proof table where collected images become searchable design evidence; it refuses the generic AI dashboard.
-OWN-WORLD: Paper white, graphite rules, calibration blue selection marks, safety red errors, compact proof labels, and an image-led contact sheet.
-STORY: Import or scan references, watch analysis progress, inspect Visual DNA and provenance, then copy a prompt or implementation recipe.
-FIRST VIEWPORT: A slim index sits left, an asymmetric contact sheet dominates the center, a loupe inspector anchors right, and the live queue runs along the bottom.
-FORM: Operate/Experience hybrid; grounded direction position 3, registration-console staging with persistent filters and visible analysis fan-out, seed 182e82e7.
+THESIS: Stylebase is a working sketchbook where collected images become searchable design evidence; it refuses the generic AI dashboard.
+OWN-WORLD: Bright paper, confident ink lines, cobalt action marks, sunflower navigation stickers, a blue one-eyed scout, and only small hand-drawn accents.
+STORY: Import or scan references, filter the image-led sheet, inspect Visual DNA and provenance, then send intentional work to Codex.
+FIRST VIEWPORT: A window-like toolbar sits above an illustrated tool-caddy rail, an asymmetric contact sheet fills the center, a binder inspector anchors right, and a character-led queue runs below.
+FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation handoff.
 -->
 <html lang="zh-Hans">
   <head>
@@ -90,7 +90,8 @@ FORM: Operate/Experience hybrid; grounded direction position 3, registration-con
     <div class="app-shell" id="app">
       <header class="topbar">
         <a class="brand" href="/" aria-label="Stylebase 视觉索引首页">
-          <span class="brand-name">STYLEBASE</span>
+          <img class="brand-logo" src="/assets/illustrations/stylebase-logo.png" alt="" aria-hidden="true" />
+          <span class="brand-name sr-only">STYLEBASE</span>
           <span class="brand-context">视觉索引</span>
         </a>
 
@@ -147,6 +148,7 @@ FORM: Operate/Experience hybrid; grounded direction position 3, registration-con
       </header>
 
       <aside class="index-rail" aria-label="资料库索引">
+        <img class="rail-tool-caddy" src="/assets/illustrations/nav-tool-caddy.png" alt="" aria-hidden="true" />
         <div class="rail-heading">
           <span>资料库</span>
           <span class="rail-status" id="rail-status">连线中</span>
@@ -154,26 +156,31 @@ FORM: Operate/Experience hybrid; grounded direction position 3, registration-con
 
         <nav class="primary-nav" id="primary-nav">
           <button class="nav-item is-active" type="button" data-view="library" aria-current="page">
+            <img class="nav-illustration" src="/assets/illustrations/nav-library.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-library"></use></svg>
             <span>素材库</span>
             <output id="count-library">—</output>
           </button>
           <button class="nav-item" type="button" data-view="inbox">
+            <img class="nav-illustration" src="/assets/illustrations/nav-inbox.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-inbox"></use></svg>
             <span>待整理</span>
             <output id="count-inbox">—</output>
           </button>
           <button class="nav-item" type="button" data-view="collections">
+            <img class="nav-illustration" src="/assets/illustrations/nav-collections.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-collection"></use></svg>
             <span>收藏集</span>
             <output id="count-collections">—</output>
           </button>
           <button class="nav-item" type="button" data-action="queue">
+            <img class="nav-illustration" src="/assets/illustrations/nav-queue.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-queue"></use></svg>
             <span>Codex 队列</span>
             <output id="count-queue">—</output>
           </button>
           <button class="nav-item" type="button" data-action="settings">
+            <img class="nav-illustration" src="/assets/illustrations/nav-settings.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-settings"></use></svg>
             <span>设定</span>
             <span class="status-dot" id="settings-status-dot" aria-label="设定状态"></span>
@@ -191,8 +198,8 @@ FORM: Operate/Experience hybrid; grounded direction position 3, registration-con
         </section>
 
         <p class="rail-footnote">
-          本地优先<br />
-          原始影像保留在你的电脑
+          灵感，<br />
+          有迹可循。
         </p>
       </aside>
 
@@ -308,6 +315,7 @@ FORM: Operate/Experience hybrid; grounded direction position 3, registration-con
 
       <aside class="inspector" id="inspector" aria-label="影像详细检视">
         <div class="inspector-empty" id="inspector-empty">
+          <img class="inspector-mascot" src="/assets/illustrations/mascot-idle.png" alt="" aria-hidden="true" />
           <span class="registration-target" aria-hidden="true"></span>
           <p>选取影像以开启校样检视</p>
           <small>方向键切换影像 · Esc 关闭</small>

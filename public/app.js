@@ -1083,6 +1083,7 @@ function renderCollectionOverview() {
   if (!state.collections.length) {
     elements.collectionTable.innerHTML = `
       <div class="empty-library-panel">
+        <img class="empty-library-illustration" src="/assets/illustrations/empty-library.png" alt="" aria-hidden="true" />
         <div>
           <h2>尚未建立收藏集</h2>
            <p>将研究中的方向整理成收藏集，之后可从影像检视器加入素材。</p>
@@ -1138,6 +1139,7 @@ function renderGallery() {
   if (!renderedAssets.length) {
     elements.gallery.innerHTML = `
       <div class="empty-library-panel">
+        <img class="empty-library-illustration" src="/assets/illustrations/empty-library.png" alt="" aria-hidden="true" />
         <div>
           <h2>${apiLibraryEmpty ? "素材库目前为空" : "没有符合条件的影像"}</h2>
           <p>${
@@ -1705,6 +1707,13 @@ function renderQueue() {
       const indeterminate = progress === null && statusIsActive(job.status);
       const stage = job.stage || stateLabel(job.status);
       const imageUrl = safeMediaUrl(asset?.mediaUrl);
+      const mascot = ["failed", "needs_setup"].includes(job.status)
+        ? "mascot-error.png"
+        : ["complete", "completed", "ready"].includes(job.status)
+          ? "mascot-complete.png"
+          : ["queued", "pending"].includes(job.status)
+            ? "mascot-waiting.png"
+            : "mascot-analyzing.png";
       return `
         <article class="queue-job" data-status="${escapeHTML(job.status)}">
           ${
@@ -1712,6 +1721,7 @@ function renderQueue() {
               ? `<img src="${escapeHTML(imageUrl)}" alt="" loading="lazy" />`
               : '<span class="queue-placeholder-thumb" aria-hidden="true"></span>'
           }
+          <img class="queue-mascot" src="/assets/illustrations/${mascot}" alt="" aria-hidden="true" />
           <div class="queue-job-info">
             <strong>${escapeHTML(asset?.title || `影像 ${job.assetId || "—"}`)}</strong>
             <div class="job-meta">

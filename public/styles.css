@@ -1,23 +1,25 @@
 :root {
-  --paper: #f7f7f3;
-  --paper-raised: #ffffff;
-  --paper-muted: #ecece7;
-  --graphite: #171918;
-  --graphite-2: #343735;
-  --muted: #666a66;
-  --rule: #c8cac5;
-  --rule-strong: #8d918c;
+  --paper: #fffdf6;
+  --paper-raised: #fffefa;
+  --paper-muted: #f3efe3;
+  --graphite: #191715;
+  --graphite-2: #3e3934;
+  --muted: #6d675e;
+  --rule: #d8d0bd;
+  --rule-strong: #28231e;
   --blue: #135dff;
   --blue-deep: #0044d2;
   --blue-soft: #e6edff;
-  --red: #dc3328;
-  --red-soft: #fff0ee;
+  --red: #e74735;
+  --red-soft: #fff0eb;
   --green: #14764b;
-  --amber: #8b5b00;
+  --amber: #9d6900;
+  --yellow: #ffd51d;
+  --yellow-soft: #fff0a6;
   --queue-height: 108px;
   --rail-width: 184px;
   --inspector-width: 372px;
-  --topbar-height: 64px;
+  --topbar-height: 86px;
   color-scheme: light;
   --font-ui:
     "Microsoft YaHei UI",
@@ -44,6 +46,8 @@
 html {
   min-width: 320px;
   background: var(--paper);
+  background-image: radial-gradient(rgb(25 23 21 / 4%) 0.65px, transparent 0.8px);
+  background-size: 7px 7px;
 }
 
 body {
@@ -53,6 +57,8 @@ body {
   overflow: hidden;
   color: var(--graphite);
   background: var(--paper);
+  background-image: radial-gradient(rgb(25 23 21 / 3%) 0.65px, transparent 0.8px);
+  background-size: 7px 7px;
   font-size: 13px;
   line-height: 1.5;
 }
@@ -190,10 +196,14 @@ svg {
     "rail workspace inspector" minmax(0, 1fr)
     "queue queue queue" var(--queue-height)
     / var(--rail-width) minmax(420px, 1fr) var(--inspector-width);
-  width: 100vw;
-  height: 100dvh;
+  width: calc(100vw - 14px);
+  height: calc(100dvh - 14px);
+  margin: 7px;
   overflow: hidden;
+  border: 3px solid var(--graphite);
+  border-radius: 13px 10px 11px 14px;
   background: var(--paper);
+  box-shadow: 3px 4px 0 rgb(25 23 21 / 14%);
 }
 
 .app-shell.is-queue-expanded {
@@ -206,17 +216,17 @@ svg {
   grid-template-columns: var(--rail-width) minmax(260px, 1fr) auto;
   align-items: center;
   min-width: 0;
-  border-bottom: 1px solid var(--rule-strong);
+  border-bottom: 3px solid var(--graphite);
   background: var(--paper-raised);
 }
 
 .brand {
   display: flex;
-  align-items: baseline;
-  gap: 14px;
+  align-items: center;
+  gap: 7px;
   height: 100%;
-  padding: 0 18px;
-  border-right: 1px solid var(--rule);
+  padding: 0 10px;
+  border-right: 2px solid var(--graphite);
   color: var(--graphite);
   text-decoration: none;
 }
@@ -225,6 +235,20 @@ svg {
   font-size: 16px;
   font-weight: 800;
   letter-spacing: -0.02em;
+}
+.brand-logo { width: 174px; height: 78px; object-fit: contain; object-position: left center; }
+.brand::after {
+  color: #fff;
+  content: "STYLEBASE";
+  margin-left: -116px;
+  padding: 5px 8px;
+  background: var(--graphite);
+  font-family: var(--font-ui);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: .025em;
+  line-height: 1;
+  transform: rotate(-1deg);
 }
 
 .brand-context {
@@ -237,13 +261,16 @@ svg {
   display: flex;
   align-items: center;
   width: min(680px, calc(100% - 32px));
-  height: 38px;
+  height: 43px;
   margin-inline: 16px;
-  border-bottom: 1px solid var(--rule-strong);
+  border: 2px solid var(--graphite);
+  border-radius: 8px 11px 8px 10px;
+  background: var(--paper-raised);
 }
 
 .search-form:focus-within {
   border-color: var(--blue);
+  box-shadow: 3px 3px 0 var(--blue-soft);
 }
 
 .search-form input {
@@ -294,7 +321,8 @@ svg {
   justify-content: center;
   gap: 8px;
   min-height: 38px;
-  border: 1px solid var(--graphite);
+  border: 2px solid var(--graphite);
+  border-radius: 7px 9px 8px 6px;
   padding: 8px 13px;
   font-weight: 650;
 }
@@ -304,17 +332,19 @@ svg {
 }
 
 .button--quiet:hover {
-  background: var(--paper-muted);
+  background: var(--yellow-soft);
+  transform: translateY(-1px) rotate(-0.3deg);
 }
 
 .button--primary {
-  border-color: var(--blue-deep);
+  border-color: var(--graphite);
   color: #fff;
   background: var(--blue);
 }
 
 .button--primary:hover {
   background: var(--blue-deep);
+  transform: translateY(-1px) rotate(0.35deg);
 }
 
 .button--danger {
@@ -353,15 +383,16 @@ svg {
   min-height: 0;
   flex-direction: column;
   overflow-y: auto;
-  border-right: 1px solid var(--rule-strong);
-  background: var(--paper-raised);
+  box-shadow: inset -3px 0 var(--graphite);
+  background: #fffdf6;
 }
+.rail-tool-caddy { width: min(150px, 100%); margin: 8px auto -4px; padding-inline: 11px; }
 
 .rail-heading {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid var(--rule);
-  padding: 16px 14px 12px;
+  border-bottom: 2px solid var(--graphite);
+  padding: 7px 14px 9px;
   font-size: 11px;
   font-weight: 750;
 }
@@ -373,26 +404,34 @@ svg {
 
 .primary-nav {
   display: grid;
-  padding: 10px 8px;
+  gap: 5px;
+  padding: 9px 8px;
 }
 
 .nav-item {
+  position: relative;
   display: grid;
-  grid-template-columns: 20px 1fr auto;
+  grid-template-columns: 34px 1fr auto;
   align-items: center;
-  min-height: 42px;
+  min-height: 54px;
   gap: 8px;
-  padding: 8px;
+  padding: 7px 8px;
   text-align: left;
 }
+.nav-illustration { width: 34px; height: 34px; object-fit: contain; }
+.nav-item > .icon { display: none; }
 
 .nav-item:hover {
-  background: var(--paper-muted);
+  background: var(--yellow-soft);
+  transform: rotate(-0.35deg);
 }
 
 .nav-item.is-active {
-  color: #fff;
-  background: var(--graphite);
+  color: var(--graphite);
+  border: 2px dashed var(--graphite);
+  border-radius: 7px 10px 8px 6px;
+  background: var(--yellow);
+  box-shadow: 2px 3px 0 rgb(25 23 21 / 18%);
 }
 
 .nav-item output {
@@ -466,11 +505,17 @@ svg {
 }
 
 .rail-footnote {
-  margin-top: auto;
-  border-top: 1px solid var(--rule);
-  padding: 16px;
-  color: var(--muted);
-  font-size: 11px;
+  width: calc(100% - 22px);
+  margin: auto 11px 13px;
+  border: 2px solid var(--graphite);
+  padding: 14px 10px 20px;
+  color: var(--graphite);
+  background: var(--yellow-soft);
+  box-shadow: 2px 3px 0 rgb(25 23 21 / 15%);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+  transform: rotate(-2deg);
 }
 
 .workspace {
@@ -488,7 +533,7 @@ svg {
   align-items: end;
   justify-content: space-between;
   min-height: 86px;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 2px solid var(--graphite);
   padding: 18px 18px 14px;
 }
 
@@ -513,7 +558,7 @@ svg {
   min-height: 58px;
   align-items: end;
   gap: 14px;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 2px solid var(--graphite);
   padding: 8px 18px 10px;
   background: var(--paper-raised);
 }
@@ -531,9 +576,9 @@ svg {
 .filter-strip select {
   min-width: 112px;
   height: 30px;
-  border: 0;
-  border-bottom: 1px solid var(--rule-strong);
-  padding: 0 22px 0 0;
+  border: 2px solid var(--graphite);
+  border-radius: 6px 8px 7px 5px;
+  padding: 0 24px 0 8px;
   background: var(--paper-raised);
 }
 
@@ -662,9 +707,9 @@ svg {
   grid-auto-flow: dense;
   grid-auto-rows: 118px;
   grid-template-columns: repeat(5, var(--cell));
-  gap: 6px;
-  padding: 7px;
-  background: var(--rule);
+  gap: 15px 13px;
+  padding: 15px 18px 38px;
+  background: transparent;
 }
 
 .contact-sheet[hidden],
@@ -681,7 +726,8 @@ svg {
   grid-column: span 1;
   grid-row: span 2;
   overflow: hidden;
-  border: 0;
+  border: 2px solid var(--graphite);
+  border-radius: 4px 6px 5px 3px;
   background: var(--paper-raised);
   isolation: isolate;
 }
@@ -704,17 +750,28 @@ svg {
   z-index: 3;
   grid-column: span 3;
   grid-row: span 4;
-  box-shadow: 7px 9px 0 rgb(23 25 24 / 20%);
+  box-shadow: 4px 5px 0 rgb(25 23 21 / 16%);
 }
 
 .asset-card.is-selected {
-  outline: 2px solid var(--blue);
-  outline-offset: -2px;
+  outline: 3px solid var(--blue);
+  outline-offset: 5px;
+}
+
+.asset-card.is-selected::before {
+  position: absolute;
+  z-index: 7;
+  inset: -8px -10px -9px -7px;
+  border: 2px solid var(--blue);
+  border-radius: 51% 47% 50% 48%;
+  content: "";
+  pointer-events: none;
+  transform: rotate(-2deg);
 }
 
 .asset-card.is-batch-selected:not(.is-selected) {
-  outline: 2px solid var(--blue);
-  outline-offset: -4px;
+  outline: 3px dashed var(--blue);
+  outline-offset: 3px;
 }
 
 .asset-open {
@@ -934,11 +991,13 @@ svg {
   display: grid;
   min-height: 150px;
   place-items: center;
-  border: 1px solid var(--rule-strong);
+  border: 2px dashed var(--graphite);
+  border-radius: 9px 11px 8px 10px;
   padding: 24px;
   background: var(--paper-raised);
   text-align: center;
 }
+.empty-library-illustration { width: min(220px, 75vw); margin: 0 auto 12px; }
 
 .empty-library-panel h2 {
   margin-bottom: 6px;
@@ -995,10 +1054,12 @@ svg {
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
-  border-left: 1px solid var(--rule-strong);
+  position: relative;
+  box-shadow: inset 3px 0 var(--graphite);
   background: var(--paper-raised);
   scrollbar-color: var(--rule-strong) var(--paper-raised);
 }
+.inspector::before { position: absolute; z-index: 9; top: 8px; bottom: 8px; left: -14px; width: 22px; background-color: var(--paper); background-image: url("/assets/illustrations/binder-rings.png"); background-position: center top; background-size: 22px 25px; background-repeat: repeat-y; content: ""; pointer-events: none; }
 
 .inspector-empty {
   display: grid;
@@ -1010,6 +1071,7 @@ svg {
   color: var(--muted);
   text-align: center;
 }
+.inspector-mascot { width: 104px; margin-bottom: 7px; }
 
 .registration-target {
   position: relative;
@@ -1048,7 +1110,7 @@ svg {
   align-items: center;
   justify-content: space-between;
   min-height: 54px;
-  border-bottom: 1px solid var(--rule-strong);
+  border-bottom: 2px solid var(--graphite);
   padding: 8px 10px 8px 14px;
   background: var(--paper-raised);
 }
@@ -1072,7 +1134,9 @@ svg {
 
 .inspector-preview {
   position: relative;
-  border-bottom: 1px solid var(--rule-strong);
+  border: 2px solid var(--graphite);
+  border-radius: 6px 9px 7px 4px;
+  margin: 14px 16px 0;
   background: #e6e6e2;
 }
 
@@ -1086,7 +1150,7 @@ svg {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  border-top: 1px solid var(--rule);
+  border-top: 2px solid var(--graphite);
   padding: 7px 12px;
   color: var(--muted);
   background: var(--paper-raised);
@@ -1094,8 +1158,8 @@ svg {
 }
 
 .inspector-section {
-  border-bottom: 1px solid var(--rule-strong);
-  padding: 16px 14px 18px;
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 18px 18px;
 }
 
 .inspector-section-heading {
@@ -1158,9 +1222,10 @@ svg {
 .swatch-color {
   display: block;
   width: 100%;
-  height: 44px;
-  border: 0;
-  box-shadow: none;
+  height: 40px;
+  border: 2px solid var(--paper-raised);
+  border-radius: 42% 58% 44% 56% / 58% 43% 57% 42%;
+  box-shadow: 0 0 0 1px var(--graphite);
   filter: none;
 }
 
@@ -1314,7 +1379,8 @@ svg {
 
 .smart-collection-suggestions {
   margin-bottom: 12px;
-  border-left: 3px solid var(--blue);
+  border: 2px dashed var(--blue);
+  border-radius: 7px 9px 6px 8px;
   padding: 10px 12px;
   background: var(--blue-soft);
 }
@@ -1410,7 +1476,7 @@ svg {
   grid-template-columns: 190px minmax(0, 1fr) auto;
   min-width: 0;
   min-height: 0;
-  border-top: 1px solid var(--rule-strong);
+  border-top: 3px solid var(--graphite);
   background: var(--paper-raised);
 }
 
@@ -1420,7 +1486,7 @@ svg {
   align-content: center;
   gap: 3px 8px;
   min-width: 0;
-  border-right: 1px solid var(--rule);
+  border-right: 2px solid var(--graphite);
   padding: 11px 14px;
   text-align: left;
 }
@@ -1466,9 +1532,10 @@ svg {
 .queue-track {
   display: flex;
   min-width: 0;
-  gap: 1px;
+  gap: 9px;
   overflow-x: auto;
-  background: var(--rule);
+  padding: 8px;
+  background: var(--paper-muted);
   scrollbar-color: var(--rule-strong) var(--paper);
 }
 
@@ -1477,11 +1544,14 @@ svg {
   min-width: 190px;
   max-width: 260px;
   flex: 1 0 190px;
-  grid-template-columns: 52px minmax(0, 1fr);
+  grid-template-columns: 52px minmax(0, 1fr) 42px;
   gap: 9px;
-  padding: 10px;
+  border: 2px solid var(--graphite);
+  border-radius: 7px 10px 6px 9px;
+  padding: 8px;
   background: var(--paper-raised);
 }
+.queue-mascot { align-self: end; width: 42px; height: 42px; object-fit: contain; }
 
 .queue-job img,
 .queue-placeholder-thumb {
@@ -1514,7 +1584,9 @@ svg {
 }
 
 .job-progress {
-  height: 3px;
+  height: 7px;
+  border: 1px solid var(--graphite);
+  border-radius: 8px;
   margin-top: 7px;
   background: var(--rule);
 }
@@ -1523,6 +1595,7 @@ svg {
   display: block;
   width: var(--progress, 0%);
   height: 100%;
+  border-radius: inherit;
   background: var(--blue);
 }
 
@@ -1563,6 +1636,7 @@ svg {
   min-width: 100%;
   place-items: center;
   padding: 16px;
+  border: 2px dashed var(--graphite);
   color: var(--muted);
   background: var(--paper-raised);
 }
@@ -1586,11 +1660,12 @@ svg {
 
 .sheet-dialog {
   width: min(430px, calc(100vw - 32px));
-  border: 1px solid var(--graphite);
+  border: 3px solid var(--graphite);
+  border-radius: 9px 12px 8px 10px;
   padding: 0;
   color: var(--graphite);
   background: var(--paper-raised);
-  box-shadow: 12px 16px 0 rgb(23 25 24 / 22%);
+  box-shadow: 5px 7px 0 rgb(25 23 21 / 20%);
 }
 
 .sheet-dialog--wide {
@@ -1687,11 +1762,12 @@ svg {
   right: 18px;
   bottom: calc(var(--queue-height) + 18px);
   max-width: min(360px, calc(100vw - 36px));
-  border: 1px solid var(--graphite);
+  border: 2px solid var(--graphite);
+  border-radius: 5px 8px 6px 9px;
   padding: 10px 13px;
   color: var(--graphite);
   background: var(--paper-raised);
-  box-shadow: 5px 6px 0 rgb(23 25 24 / 16%);
+  box-shadow: 3px 4px 0 rgb(25 23 21 / 16%);
   opacity: 0;
   pointer-events: none;
   transform: translateY(8px);
@@ -1720,6 +1796,8 @@ svg {
   .brand-context {
     display: none;
   }
+  .brand-logo { width: 142px; }
+  .brand::after { margin-left: -98px; font-size: 15px; }
 
   .contact-sheet {
     grid-template-columns: repeat(4, minmax(104px, 1fr));
@@ -1733,7 +1811,7 @@ svg {
 @media (max-width: 920px) {
   :root {
     --queue-height: 82px;
-    --topbar-height: 112px;
+    --topbar-height: 132px;
   }
 
   body {
@@ -1762,6 +1840,7 @@ svg {
     border-right: 0;
     padding-inline: 14px;
   }
+  .rail-tool-caddy { display: none; }
 
   .search-form {
     grid-row: 2;
@@ -1813,11 +1892,12 @@ svg {
   .nav-item {
     min-width: max-content;
     flex: 1 0 auto;
-    grid-template-columns: 18px auto auto;
+    grid-template-columns: 30px auto auto;
     min-height: 43px;
     justify-content: center;
     padding: 7px 10px;
   }
+  .nav-illustration { width: 30px; height: 30px; }
 
   .workspace {
     min-height: 0;
@@ -1831,6 +1911,7 @@ svg {
     border-left: 0;
     background: var(--paper-raised);
   }
+  .inspector::before { display: none; }
 
   body.is-inspector-open .inspector {
     display: block;
@@ -1870,9 +1951,10 @@ svg {
 
   .queue-job {
     min-width: 150px;
-    grid-template-columns: 40px minmax(0, 1fr);
+    grid-template-columns: 40px minmax(0, 1fr) 34px;
     padding: 6px;
   }
+  .queue-mascot { width: 34px; height: 34px; }
 
   .queue-job img,
   .queue-placeholder-thumb {
@@ -1891,7 +1973,7 @@ svg {
 
 @media (max-width: 640px) {
   :root {
-    --topbar-height: 112px;
+    --topbar-height: 132px;
   }
 
   .topbar {
@@ -1901,6 +1983,8 @@ svg {
   .brand-name {
     font-size: 14px;
   }
+  .brand-logo { width: 126px; }
+  .brand::after { margin-left: -85px; padding: 4px 6px; font-size: 13px; }
 
   .search-form kbd {
     display: none;
@@ -1969,6 +2053,8 @@ svg {
   .contact-sheet {
     grid-auto-rows: 104px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px 9px;
+    padding: 11px 12px 28px;
   }
 
   .asset-card:nth-child(n) {
