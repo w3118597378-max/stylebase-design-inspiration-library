@@ -2598,8 +2598,15 @@ body.is-dragging::after {
 }
 
 .star-rating {
-  margin-top: 4px;
-  min-height: 18px;
+  position: absolute;
+  right: 8px;
+  bottom: 46px;
+  z-index: 3;
+  gap: 1px;
+  padding: 2px 4px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 7px;
+  background: rgba(255, 253, 246, 0.92);
 }
 
 .star {
@@ -2703,6 +2710,8 @@ body.is-dragging::after {
 }
 
 .asset-open--static {
+  position: relative;
+  inset: auto;
   display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
