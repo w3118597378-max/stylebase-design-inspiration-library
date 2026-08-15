@@ -24,7 +24,7 @@ const DB_PATH = path.join(DATA_DIR, "catalog.sqlite");
 const HOST = "127.0.0.1";
 const PORT = numberInRange(process.env.STYLEBASE_PORT, 4177, 1024, 65535);
 const BODY_LIMIT = 42 * 1024 * 1024;
-const VERSION = "1.1.0";
+const VERSION = "1.2.0";
 
 const STATIC_MIME = new Map([
   [".html", "text/html; charset=utf-8"],

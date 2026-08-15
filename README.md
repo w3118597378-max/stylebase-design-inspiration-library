@@ -103,14 +103,12 @@ stylebase-design-inspiration-library/
 
 更多說明請讀[資料、隱私與圖片權利](docs/privacy-and-content-rights.md)。
 
-## 本週課程
+## 文件
 
-- [完整教學講義](lesson.md)
 - [系統架構與 Agent Workflow](docs/architecture.md)
 - [資料、隱私與圖片權利](docs/privacy-and-content-rights.md)
 - [疑難排解](docs/troubleshooting.md)
 - [自動驗證與人工驗收](docs/verification.md)
-- [課程 metadata](metadata.yml)
 
 ## 開發與驗證
 
@@ -153,6 +151,6 @@ npm.cmd run validate
 
 ## 版本
 
-- `v1.0.0`／2026-W31：首次學員開源版。
+- `v1.2.0`／2026-08：中英雙語介面、手繪風改版、軟刪除與回收站。
 
 完整紀錄見 [CHANGELOG.md](CHANGELOG.md)。

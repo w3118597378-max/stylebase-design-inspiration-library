@@ -84,7 +84,7 @@ try {
   if (!bootstrapResponse.ok) {
     throw new Error(`Bootstrap returned ${bootstrapResponse.status}.`);
   }
-  if (bootstrap.version !== "1.1.0") {
+  if (bootstrap.version !== "1.2.0") {
     throw new Error(`Unexpected version: ${bootstrap.version}`);
   }
   if (assetCount !== 0 || jobCount !== 0) {
