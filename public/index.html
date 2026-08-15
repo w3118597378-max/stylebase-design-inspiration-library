@@ -29,6 +29,16 @@ FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation 
       <symbol id="icon-star" viewBox="0 0 24 24">
         <path d="M12 3.2 14.6 8.6l6 .9-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6L3.4 9.5l6-.9z"></path>
       </symbol>
+      <symbol id="icon-trash" viewBox="0 0 24 24">
+        <path d="M4 7h16"></path>
+        <path d="M9 7V4h6v3"></path>
+        <path d="M6 7l1 13h10l1-13"></path>
+        <path d="M10 11v5M14 11v5"></path>
+      </symbol>
+      <symbol id="icon-restore" viewBox="0 0 24 24">
+        <path d="M4 10h4v4"></path>
+        <path d="M4.5 10a8 8 0 1 1-1.2 5"></path>
+      </symbol>
       <symbol id="icon-import" viewBox="0 0 24 24">
         <path d="M12 3v12"></path>
         <path d="m7.5 8 4.5-5 4.5 5"></path>
@@ -182,6 +192,11 @@ FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation 
             <span>收藏集</span>
             <output id="count-collections">—</output>
           </button>
+          <button class="nav-item" type="button" data-view="trash">
+            <svg class="icon" aria-hidden="true"><use href="#icon-trash"></use></svg>
+            <span>资源回收筒</span>
+            <output id="count-trash">—</output>
+          </button>
           <button class="nav-item" type="button" data-action="queue">
             <img class="nav-illustration" src="/assets/illustrations/nav-queue.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-queue"></use></svg>
@@ -278,6 +293,29 @@ FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation 
           </small>
           <div>
             <button class="text-button" id="clear-selection-button" type="button">取消选取</button>
+            <button
+              class="button button--quiet"
+              id="batch-trash-button"
+              type="button"
+            >
+              移入回收筒
+            </button>
+            <button
+              class="button button--quiet"
+              id="batch-restore-button"
+              type="button"
+              hidden
+            >
+              恢复
+            </button>
+            <button
+              class="button button--danger"
+              id="batch-purge-button"
+              type="button"
+              hidden
+            >
+              彻底删除
+            </button>
             <button
               class="button button--primary"
               id="batch-analyze-button"

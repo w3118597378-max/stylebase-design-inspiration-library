@@ -2657,3 +2657,95 @@ body.is-dragging::after {
     transition: none;
   }
 }
+
+/* Trash view */
+.asset-trash-toggle {
+  position: absolute;
+  top: 30px;
+  right: 8px;
+  z-index: 3;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 2px solid var(--rule-strong);
+  border-radius: 7px;
+  background: var(--paper-raised);
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.asset-card:hover .asset-trash-toggle,
+.asset-card:focus-within .asset-trash-toggle {
+  display: inline-flex;
+}
+
+.asset-trash-toggle .icon {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.asset-trash-toggle:hover {
+  color: var(--red);
+}
+
+.asset-card.is-trashed {
+  opacity: 0.92;
+}
+
+.asset-card.is-trashed .asset-open {
+  filter: grayscale(0.25);
+}
+
+.asset-open--static {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 2px solid var(--rule);
+  border-radius: 9px;
+  background: var(--paper-muted);
+}
+
+.asset-open--static img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.asset-trash-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.asset-trash-actions .button {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
+.asset-trash-actions .icon {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  vertical-align: -2px;
+  margin-right: 3px;
+}
+
+.button--danger {
+  border: 2px solid var(--red);
+  color: var(--red);
+  background: var(--paper-raised);
+}
+
+.button--danger:hover {
+  background: var(--red-soft);
+}
