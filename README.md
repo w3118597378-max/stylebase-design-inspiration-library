@@ -109,6 +109,10 @@ npm.cmd run validate     # 完整驗證:check + test + smoke + release 檢查
 - [疑難排解](docs/troubleshooting.md)
 - [自動驗證與人工驗收](docs/verification.md)
 
+## 致謝
+
+本專案衍生自 [Winston-10xAI-Toolspack](https://github.com/Winston774/Winston-10xAI-Toolspack/tree/main/weeks/2026/2026-w31-stylebase-design-inspiration-library/completed/stylebase-design-inspiration-library) 中的 Stylebase 設計靈感資料庫示例專案(2026-W31 SKOOL 開源專案, [MIT License](LICENSE))。在此基礎上進行 UI 重塑(手繪風改版、中英雙語介面、檢查器／佇列／頂欄重設計)與功能擴充(拖拽匯入、星級評分、資源回收筒)。
+
 ## 版本
 
 - `v1.2.0`／2026-08:中英雙語介面、手繪風改版、軟刪除與回收站。

@@ -109,6 +109,10 @@ Images you import are not automatically MIT-licensed by being in Stylebase. They
 - [Troubleshooting](docs/troubleshooting.md)
 - [Verification](docs/verification.md)
 
+## Credits
+
+This project is derived from the Stylebase design inspiration library sample in [Winston-10xAI-Toolspack](https://github.com/Winston774/Winston-10xAI-Toolspack/tree/main/weeks/2026/2026-w31-stylebase-design-inspiration-library/completed/stylebase-design-inspiration-library) (2026-W31 SKOOL open-source project, [MIT License](LICENSE)). On top of it we rebuilt the UI (hand-drawn redesign, zh/en bilingual interface, inspector/queue/topbar redesign) and added features (drag-and-drop import, star ratings, trash bin).
+
 ## Releases
 
 - `v1.2.0`／2026-08: Bilingual UI (zh/en), hand-drawn redesign, soft delete and trash bin.
