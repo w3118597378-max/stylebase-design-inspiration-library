@@ -31,11 +31,24 @@
 
 ## 快速开始
 
+### 1. 获取项目
+
+克隆仓库,或点击仓库页面 **Code** 按钮下载 ZIP:
+
+```bash
+git clone https://github.com/w3118597378-max/stylebase-design-inspiration-library.git
+cd stylebase-design-inspiration-library
+```
+
+### 2. 启动
+
 需求:Windows 10／11、Node.js 24 或更新版本。零第三方依赖,不需要 `npm install`。
 
 ```powershell
 npm.cmd start
 ```
+
+### 3. 使用
 
 打开 <http://127.0.0.1:4177>,把图片拖进窗口,或放到 `library/inbox` 文件夹后按「重新扫描」。
 

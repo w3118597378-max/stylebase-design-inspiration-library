@@ -31,11 +31,24 @@
 
 ## Quick Start
 
+### 1. Get the project
+
+Clone the repository, or download the ZIP from the **Code** button on the repository page:
+
+```bash
+git clone https://github.com/w3118597378-max/stylebase-design-inspiration-library.git
+cd stylebase-design-inspiration-library
+```
+
+### 2. Start it
+
 Requirements: Windows 10/11 and Node.js 24 or newer. Zero third-party dependencies, no `npm install`.
 
 ```powershell
 npm.cmd start
 ```
+
+### 3. Use it
 
 Open <http://127.0.0.1:4177> and drag images into the window, or drop them into the `library/inbox` folder and hit **Rescan**.
 
