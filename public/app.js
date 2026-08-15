@@ -59,6 +59,7 @@ const elements = {
   searchInput: document.querySelector("#search-input"),
   disciplineFilter: document.querySelector("#discipline-filter"),
   statusFilter: document.querySelector("#status-filter"),
+  ratingFilter: document.querySelector("#rating-filter"),
   sortSelect: document.querySelector("#sort-select"),
   clearFiltersButton: document.querySelector("#clear-filters-button"),
   importButton: document.querySelector("#import-button"),
@@ -962,11 +963,18 @@ function filteredAssets() {
   if (state.status) {
     assets = assets.filter((asset) => asset.status === state.status);
   }
+  if (state.rating) {
+    assets = assets.filter((asset) => asset.rating >= state.rating);
+  }
 
   if (state.sort === "title") {
     assets.sort((a, b) => a.title.localeCompare(b.title, "zh-Hans"));
   } else if (state.sort === "status") {
     assets.sort((a, b) => a.status.localeCompare(b.status));
+  } else if (state.sort === "rating") {
+    assets.sort(
+      (a, b) => b.rating - a.rating || b.updatedAt.localeCompare(a.updatedAt),
+    );
   } else {
     assets.sort((a, b) => {
       const aTime = new Date(a.createdAt || 0).getTime();
@@ -1233,6 +1241,27 @@ function renderAssetCard(asset, index, total) {
         <strong>${escapeHTML(asset.title)}</strong>
         <span>${escapeHTML(dimensions)}</span>
       </figcaption>
+      ${
+        asset.synthetic
+          ? ""
+          : `<div class="star-rating" role="group" aria-label="评分 ${asset.rating}/5">
+              ${[1, 2, 3, 4, 5]
+                .map(
+                  (star) => `
+                <button
+                  type="button"
+                  class="star ${asset.rating >= star ? "is-filled" : ""}"
+                  data-star="${star}"
+                  data-asset-id="${escapeHTML(asset.id)}"
+                  aria-label="设为 ${star} 星"
+                  aria-pressed="${asset.rating >= star}"
+                >
+                  <svg class="icon" aria-hidden="true"><use href="#icon-star"></use></svg>
+                </button>`,
+                )
+                .join("")}
+            </div>`
+      }
       <span class="proof-mark proof-mark--tl" aria-hidden="true"></span>
       <span class="proof-mark proof-mark--tr" aria-hidden="true"></span>
       <span class="proof-mark proof-mark--br" aria-hidden="true"></span>
@@ -1471,6 +1500,24 @@ function renderInspector() {
       <div class="inspector-title">
         <p>${escapeHTML(stateLabel(asset.status))}</p>
         <h2>${escapeHTML(asset.title)}</h2>
+        <div class="inspector-rating" role="group" aria-label="评分 ${asset.rating}/5">
+          ${[1, 2, 3, 4, 5]
+            .map(
+              (star) => `
+            <button
+              type="button"
+              class="star ${asset.rating >= star ? "is-filled" : ""}"
+              data-star="${star}"
+              data-asset-id="${escapeHTML(asset.id)}"
+              aria-label="设为 ${star} 星"
+              aria-pressed="${asset.rating >= star}"
+            >
+              <svg class="icon" aria-hidden="true"><use href="#icon-star"></use></svg>
+            </button>`,
+            )
+            .join("")}
+          <span class="inspector-rating-value">${asset.rating}/5</span>
+        </div>
       </div>
       <button class="icon-button" type="button" data-close-inspector aria-label="关闭详细检视">
         <span class="inspector-back-label">返回素材库</span>
@@ -1835,6 +1882,7 @@ async function refreshAssets({ selectId = null } = {}) {
   });
   if (state.query) params.set("query", state.query);
   if (state.status) params.set("status", state.status);
+  if (state.rating) params.set("rating", String(state.rating));
   if (state.activeCollectionId) {
     params.set("collectionId", state.activeCollectionId);
   }
@@ -2275,10 +2323,12 @@ function clearFilters() {
   state.query = "";
   state.discipline = "";
   state.status = "";
+  state.rating = 0;
   state.sort = "newest";
   elements.searchInput.value = "";
   elements.disciplineFilter.value = "";
   elements.statusFilter.value = "";
+  elements.ratingFilter.value = "";
   elements.sortSelect.value = "newest";
   refreshAssets().catch((error) =>
     notify(`无法清除条件：${error.message}`, "error"),
@@ -2443,6 +2493,13 @@ elements.statusFilter.addEventListener("change", () => {
   );
 });
 
+elements.ratingFilter.addEventListener("change", () => {
+  state.rating = finiteNumber(elements.ratingFilter.value, 0);
+  refreshAssets().catch((error) =>
+    notify(`筛选失败：${error.message}`, "error"),
+  );
+});
+
 elements.sortSelect.addEventListener("change", () => {
   state.sort = elements.sortSelect.value;
   refreshAssets().catch((error) =>
@@ -2559,6 +2616,27 @@ document.addEventListener(
 );
 
 document.addEventListener("click", async (event) => {
+  const starButton = event.target.closest("[data-star]");
+  if (starButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    const assetId = starButton.dataset.assetId;
+    const starValue = Number(starButton.dataset.star);
+    const asset = state.assets.find((item) => item.id === assetId);
+    const next = asset?.rating === starValue ? 0 : starValue;
+    try {
+      await api(`/api/assets/${assetId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ rating: next }),
+      });
+      if (asset) asset.rating = next;
+      renderGallery();
+      renderInspector();
+    } catch (error) {
+      notify(`评分失败：${error.message}`, "error");
+    }
+    return;
+  }
   const target = event.target;
   const openAssetButton = target.closest("[data-open-asset]");
   if (openAssetButton) {

@@ -2588,3 +2588,72 @@ body.is-dragging::after {
     transition: none;
   }
 }
+
+/* Star rating */
+.star-rating,
+.inspector-rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star-rating {
+  margin-top: 4px;
+  min-height: 18px;
+}
+
+.star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--rule-strong);
+}
+
+.star .icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  transition: transform 0.12s ease;
+}
+
+.star:hover .icon {
+  transform: scale(1.2);
+}
+
+.star.is-filled .icon {
+  fill: var(--yellow);
+  stroke: var(--rule-strong);
+}
+
+.star:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+.inspector-rating {
+  margin-top: 6px;
+}
+
+.inspector-rating-value {
+  margin-left: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star .icon {
+    transition: none;
+  }
+}

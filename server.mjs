@@ -256,6 +256,7 @@ async function handleApi(request, response, url) {
       domain: url.searchParams.get("domain") || "",
       favorite: url.searchParams.get("favorite") || "",
       trashed: url.searchParams.get("trashed") || "",
+      rating: url.searchParams.get("rating") || "",
       collectionId: url.searchParams.get("collectionId") || "",
       sort: url.searchParams.get("sort") || "newest",
       limit: numberInRange(url.searchParams.get("limit"), 80, 1, 200),

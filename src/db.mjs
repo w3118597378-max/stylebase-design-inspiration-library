@@ -1034,6 +1034,12 @@ export function createCatalog(dbPath) {
         : booleanValue(filters.trashed ?? false, "trashed");
     where.push(trashed ? "a.deleted_at IS NOT NULL" : "a.deleted_at IS NULL");
 
+    const rating = Number(filters.rating ?? "");
+    if (Number.isInteger(rating) && rating >= 1 && rating <= 5) {
+      where.push("a.rating >= ?");
+      parameters.push(rating);
+    }
+
     if (
       filters.collectionId !== undefined &&
       filters.collectionId !== null &&

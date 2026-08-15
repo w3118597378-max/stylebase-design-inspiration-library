@@ -26,6 +26,9 @@ FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation 
         <circle cx="11" cy="11" r="6.5"></circle>
         <path d="m16 16 4 4"></path>
       </symbol>
+      <symbol id="icon-star" viewBox="0 0 24 24">
+        <path d="M12 3.2 14.6 8.6l6 .9-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6L3.4 9.5l6-.9z"></path>
+      </symbol>
       <symbol id="icon-import" viewBox="0 0 24 24">
         <path d="M12 3v12"></path>
         <path d="m7.5 8 4.5-5 4.5 5"></path>
@@ -245,9 +248,21 @@ FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation 
             </select>
           </label>
           <label>
+            <span>星级</span>
+            <select id="rating-filter">
+              <option value="">全部星级</option>
+              <option value="1">1★ 以上</option>
+              <option value="2">2★ 以上</option>
+              <option value="3">3★ 以上</option>
+              <option value="4">4★ 以上</option>
+              <option value="5">5★</option>
+            </select>
+          </label>
+          <label>
             <span>排序</span>
             <select id="sort-select">
               <option value="newest">最新加入</option>
+              <option value="rating">星级</option>
               <option value="title">名称</option>
               <option value="status">分析状态</option>
             </select>

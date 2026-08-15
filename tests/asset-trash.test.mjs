@@ -234,6 +234,30 @@ test("collections hide deleted assets", async () => {
   });
 });
 
+test("listAssets filters and sorts by rating", async () => {
+  await withCatalog((catalog) => {
+    const [one, two, three] = seed(catalog, [
+      makeRecord({ sha256: HASH_A, relativePath: "inbox/one.png" }),
+      makeRecord({ sha256: HASH_B, relativePath: "inbox/two.png" }),
+      makeRecord({ sha256: HASH_C, relativePath: "inbox/three.png" }),
+    ]);
+    catalog.updateAsset(one.id, { rating: 5 });
+    catalog.updateAsset(two.id, { rating: 3 });
+    // three stays at 0
+
+    const filtered = catalog.listAssets({ rating: 4 });
+    assert.deepEqual(
+      filtered.items.map((item) => item.id),
+      [one.id],
+    );
+    const allByRating = catalog.listAssets({ sort: "rating" });
+    assert.deepEqual(
+      allByRating.items.map((item) => item.id),
+      [one.id, two.id, three.id],
+    );
+  });
+});
+
 test("re-importing a deleted file does not revive it; restore does", async () => {
   await withCatalog((catalog) => {
     const first = catalog.upsertAsset(makeRecord()).asset;
