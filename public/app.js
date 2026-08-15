@@ -146,6 +146,12 @@ const DNA_LABELS = {
   interaction: "互动",
 };
 
+function dnaLabel(key) {
+  const localized = I18N.t(`facet.${key}`);
+  if (localized !== `facet.${key}`) return localized;
+  return DNA_LABELS[key] || key;
+}
+
 // Convert legacy analysis records saved before the UI switched to Simplified Chinese.
 const TRADITIONAL_ANALYSIS_CHARS =
   "張時雜誌為頁圖網畫攤開視覺圍極細導頭資訊輪圓點與訂閱體國際義獨氣質帶數藍綴簡編輯設計採樣機構層積兩標題內個橫頂間寫紅螢塊並線側組愛號價狀態現連結無識錄襯實驗滿寬闊負紙淨虛響應優約欄絕對尋購區將擊齊籤鍵盤夠熱換準議幾護藝術師純臨漸擬疊邊暈膠鈕過陰電稱讀額場務報觀見糲軸條顯懸節單複輕規較緊湊確認淺動調飽強則書緣壓縮別攝僅沒從霧環雙車輸啟測讓統這瀏覽戲劇語搶擴銳鄰觸級會裝飾賴壞緻檢礙屬徑顏製來綠復腦業繪彙據夾擋團隊討論頻預輛黃樹鐘選擇維屜潤轉軟項協產傳懷舊學處隱譜後織閉穩擁擠溫潑鋸齒階變塗顆斷經閾終員檔捲滾載鮮達紋鋪犧順難惡誤風記遊傾錨類簽嚴亂碼創歷賽幟聯離營勢註雖輔纖潔佔長筆發腳詳靜關係貼針刪補險競爭當須試";
@@ -265,7 +271,7 @@ function normalizeAsset(raw) {
   return {
     ...asset,
     id: String(asset.id ?? asset.assetId ?? relativePath ?? ""),
-    title: String(asset.title || stripExtension(fileName) || "未命名影像"),
+    title: String(asset.title || stripExtension(fileName) || I18N.t("common.unnamedImage")),
     fileName,
     relativePath,
     mediaUrl: safeMediaUrl(asset.mediaUrl || asset.url || asset.thumbnailUrl),
@@ -299,7 +305,7 @@ function normalizeCollection(raw) {
   return {
     ...collection,
     id: String(collection.id ?? collection.collectionId ?? ""),
-    name: String(collection.name || collection.title || "未命名收藏集"),
+    name: String(collection.name || collection.title || I18N.t("common.unnamedCollection")),
     itemCount:
       finiteNumber(
         collection.itemCount,
@@ -374,7 +380,7 @@ function readableValue(value) {
       .filter(Boolean)
       .join("、");
   }
-  if (typeof value === "boolean") return value ? "是" : "否";
+  if (typeof value === "boolean") return value ? I18N.t("common.yes") : I18N.t("common.no");
   return toSimplifiedChinese(String(value ?? "").trim());
 }
 
@@ -542,40 +548,42 @@ function collectionSuggestionNames(asset) {
   };
 
   if (/网页|网站|落地页|界面|ui|仪表板|dashboard|聊天|桌面/.test(source)) {
-    add("网页与界面");
+    add(I18N.t("source.web"));
   }
   if (/产品|包装|电商|商品|工业/.test(source)) {
-    add("产品与包装");
+    add(I18N.t("source.product"));
   }
   if (/品牌|标志|识别|logo/.test(source)) {
-    add("品牌视觉");
+    add(I18N.t("source.brand"));
   }
   if (
     /构图|网格|版面|布局|留白|层级/.test(source) ||
     visual.composition ||
     visual.grid
   ) {
-    add("布局与构图");
+    add(I18N.t("source.layout"));
   }
   if (
     /字体|排版|色彩|颜色|色票|typography/.test(source) ||
     analysis.data.typography ||
     analysis.data.color
   ) {
-    add("色彩与字体");
+    add(I18N.t("source.color"));
   }
 
   return suggestions.slice(0, 3);
 }
 
 function stateLabel(value) {
-  return STATUS_LABELS[value] || value || "未分类";
+  const localized = I18N.t(`status.${value}`);
+  if (localized !== `status.${value}`) return localized;
+  return STATUS_LABELS[value] || value || I18N.t("common.uncategorized");
 }
 
 function formatNumber(value) {
   const number = Number(value);
   return Number.isFinite(number)
-    ? new Intl.NumberFormat("zh-Hans-CN").format(number)
+    ? new Intl.NumberFormat(I18N.lang === "en" ? "en-US" : "zh-Hans-CN").format(number)
     : "—";
 }
 
@@ -591,7 +599,7 @@ function formatDate(value) {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
-  return new Intl.DateTimeFormat("zh-Hans-CN", {
+  return new Intl.DateTimeFormat(I18N.lang === "en" ? "en-US" : "zh-Hans-CN", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
@@ -634,7 +642,7 @@ async function api(path, options = {}) {
       payload?.error?.message ||
       payload?.error ||
       payload?.message ||
-      `本地服务回传 ${response.status}`;
+      I18N.t("misc.serverResponse", { status: response.status });
     const error = new Error(String(message));
     error.status = response.status;
     error.details = payload?.details || payload?.error?.details || null;
@@ -667,68 +675,68 @@ function studySvg(index, title, palette) {
 function createSyntheticStudies() {
   const definitions = [
     {
-      title: "校准建筑／首页",
+      title: I18N.t("seed.s1.title"),
       discipline: "web",
       palette: ["#f1f0ea", "#161817", "#135dff", "#b8b9b4"],
-      description: "以宽幅建筑影像、低密度导览与克制字级建立安静但明确的首页层级。",
-      style: "极简、建筑、编辑",
-      composition: "非对称分割、影像主导、宽留白",
+      description: I18N.t("seed.s1.desc"),
+      style: I18N.t("seed.s1.style"),
+      composition: I18N.t("seed.s1.composition"),
     },
     {
-      title: "模组字体／海报",
+      title: I18N.t("seed.s2.title"),
       discipline: "brand",
       palette: ["#f4f0e8", "#111111", "#dc3328", "#858681"],
-      description: "巨幅无衬线字体与校样红线构成单一视觉承诺，适合作为品牌宣言。",
-      style: "字体主导、现代主义",
-      composition: "满版字级、严格基线、单点讯号色",
+      description: I18N.t("seed.s2.desc"),
+      style: I18N.t("seed.s2.style"),
+      composition: I18N.t("seed.s2.composition"),
     },
     {
-      title: "静物材质／品牌",
+      title: I18N.t("seed.s3.title"),
       discipline: "brand",
       palette: ["#eee9df", "#1e211f", "#8d6f47", "#c7c1b7"],
-      description: "中性棚拍、触感材质与少量标签，让产品本身成为品牌识别的证据。",
-      style: "静物摄影、自然材质",
-      composition: "中心聚焦、低对比背景、尺度留白",
+      description: I18N.t("seed.s3.desc"),
+      style: I18N.t("seed.s3.style"),
+      composition: I18N.t("seed.s3.composition"),
     },
     {
-      title: "流动状态／概念",
+      title: I18N.t("seed.s4.title"),
       discipline: "concept",
       palette: ["#fff5e9", "#171717", "#ef4d23", "#684cff"],
-      description: "高饱和场域与分栏节奏用来表达运动、音乐或文化活动的动态性。",
-      style: "文化海报、动态模糊",
-      composition: "互补色冲突、分割栏位、大字短句",
+      description: I18N.t("seed.s4.desc"),
+      style: I18N.t("seed.s4.style"),
+      composition: I18N.t("seed.s4.composition"),
     },
     {
-      title: "资料层级／UI",
+      title: I18N.t("seed.s5.title"),
       discipline: "ui",
       palette: ["#f5f6f2", "#171918", "#135dff", "#9ca7b8"],
-      description: "窄索引配合宽资料区，使用明确基线与单一蓝色表示可操作状态。",
-      style: "工具介面、资讯设计",
-      composition: "侧栏索引、水平读序、数据层级",
+      description: I18N.t("seed.s5.desc"),
+      style: I18N.t("seed.s5.style"),
+      composition: I18N.t("seed.s5.composition"),
     },
     {
-      title: "包装比例／产品",
+      title: I18N.t("seed.s6.title"),
       discipline: "product",
       palette: ["#eee6d8", "#201f1b", "#a66d35", "#b9b1a4"],
-      description: "以几何容器、低彩度纸材与比例对照建立可靠的产品叙事。",
-      style: "包装、材质研究",
-      composition: "中心物件、比例对照、低密度注记",
+      description: I18N.t("seed.s6.desc"),
+      style: I18N.t("seed.s6.style"),
+      composition: I18N.t("seed.s6.composition"),
     },
     {
-      title: "深色架构／网页",
+      title: I18N.t("seed.s7.title"),
       discipline: "web",
       palette: ["#f4f1e9", "#171918", "#6b735f", "#a8a69e"],
-      description: "深色框架与亮色内容页形成场域切换，焦点留给案例本身而非介面装饰。",
-      style: "作品集、深色框架",
-      composition: "框中框、案例聚焦、低彩度",
+      description: I18N.t("seed.s7.desc"),
+      style: I18N.t("seed.s7.style"),
+      composition: I18N.t("seed.s7.composition"),
     },
     {
-      title: "介面图谱／品牌",
+      title: I18N.t("seed.s8.title"),
       discipline: "brand",
       palette: ["#f7f4ec", "#111111", "#135dff", "#b9b8b0"],
-      description: "将识别元素依比例、字级与应用场景编成一张可实作的品牌图谱。",
-      style: "品牌规范、系统化",
-      composition: "模组网格、比例标记、可追溯编号",
+      description: I18N.t("seed.s8.desc"),
+      style: I18N.t("seed.s8.style"),
+      composition: I18N.t("seed.s8.composition"),
     },
   ];
 
@@ -749,24 +757,24 @@ function createSyntheticStudies() {
         discipline: item.discipline,
         style: item.style,
         composition: item.composition,
-        density: index % 2 === 0 ? "克制／低至中密度" : "聚焦／中密度",
-        typography: "清楚字级阶层、用途导向",
+        density: index % 2 === 0 ? I18N.t("seed.v1") : I18N.t("seed.v2"),
+        typography: I18N.t("seed.typography"),
       },
       palette: item.palette,
       whyItWorks: [
-        "主视觉与文字层级只有一个明确焦点",
-        "色彩角色固定，不以装饰取代内容",
-        "构图可直接转译成响应式网格",
+        I18N.t("seed.principle1"),
+        I18N.t("seed.principle2"),
+        I18N.t("seed.principle3"),
       ],
       implementationRecipe: [
-        "先定义主内容与索引区的比例",
-        "以单一讯号色标记状态与主要操作",
-        "在小萤幕保持原本阅读顺序，再折叠次要资讯",
+        I18N.t("seed.do1"),
+        I18N.t("seed.do2"),
+        I18N.t("seed.do3"),
       ],
       promptKit: {
-        visual: `${item.title}，${item.style}，${item.composition}，中性色基底，单一讯号色，真实内容主导，无玻璃特效、无霓虹、无通用仪表板卡片。`,
-        implementation: `以语意化 HTML、CSS Grid 与可存取控制元件实作「${item.title}」方向；保留${item.composition}，图片优先，状态以单一校准色表达。`,
-        negative: "渐层光球、玻璃拟态、霓虹描边、卡片套卡片、巨大标题、无意义 AI 分数",
+        visual: I18N.t("seed.visual", { title: item.title, style: item.style, composition: item.composition }),
+        implementation: I18N.t("seed.implementation", { title: item.title, composition: item.composition }),
+        negative: I18N.t("seed.negative"),
       },
     },
   }));
@@ -834,7 +842,7 @@ async function loadBootstrap({ preserveSelection = true } = {}) {
     ]).map(normalizeCollection);
     state.paths = asObject(bootstrap?.paths);
     state.loading = false;
-    elements.railStatus.textContent = "本地连线";
+    elements.railStatus.textContent = I18N.t("nav.connected");
 
     if (
       preserveSelection &&
@@ -848,7 +856,7 @@ async function loadBootstrap({ preserveSelection = true } = {}) {
   } catch (error) {
     state.loading = false;
     state.error = error;
-    elements.railStatus.textContent = "连线失败";
+    elements.railStatus.textContent = I18N.t("nav.disconnected");
     renderLoading();
   }
 }
@@ -861,8 +869,8 @@ function renderLoading() {
 
   if (state.error) {
     elements.errorMessage.textContent =
-      state.error.message || "请确认本地服务仍在执行，再重新载入。";
-    elements.resultSummary.textContent = "本地资料库无法连线";
+      state.error.message || I18N.t("misc.dbErrorHint");
+    elements.resultSummary.textContent = I18N.t("misc.dbUnreachable");
   }
 }
 
@@ -972,7 +980,7 @@ function filteredAssets() {
   }
 
   if (state.sort === "title") {
-    assets.sort((a, b) => a.title.localeCompare(b.title, "zh-Hans"));
+    assets.sort((a, b) => a.title.localeCompare(b.title, I18N.lang === "en" ? "en" : "zh-Hans"));
   } else if (state.sort === "status") {
     assets.sort((a, b) => a.status.localeCompare(b.status));
   } else if (state.sort === "rating") {
@@ -1013,27 +1021,27 @@ function renderAll() {
 
 function renderViewHeading() {
   if (state.view === "collections") {
-    elements.viewKicker.textContent = "策展索引";
-    elements.viewTitle.textContent = "收藏集";
-    elements.resultSummary.textContent = `${formatNumber(
-      state.collections.length,
-    )} 个收藏集`;
+    elements.viewKicker.textContent = I18N.t("view.kickerCollections");
+    elements.viewTitle.textContent = I18N.t("view.collections");
+    elements.resultSummary.textContent = I18N.t("view.countCollections", {
+      n: formatNumber(state.collections.length),
+    });
     return;
   }
 
   const collection = activeCollection();
   if (collection) {
-    elements.viewKicker.textContent = "收藏集";
+    elements.viewKicker.textContent = I18N.t("view.kickerCollection");
     elements.viewTitle.textContent = collection.name;
   } else if (state.view === "inbox") {
-    elements.viewKicker.textContent = "待确认与待分析";
-    elements.viewTitle.textContent = "待整理";
+    elements.viewKicker.textContent = I18N.t("view.kickerInbox");
+    elements.viewTitle.textContent = I18N.t("view.inbox");
   } else if (state.view === "trash") {
-    elements.viewKicker.textContent = "已移出素材库";
-    elements.viewTitle.textContent = "资源回收筒";
+    elements.viewKicker.textContent = I18N.t("view.kickerTrash");
+    elements.viewTitle.textContent = I18N.t("view.trash");
   } else {
-    elements.viewKicker.textContent = "视觉索引";
-    elements.viewTitle.textContent = "素材库";
+    elements.viewKicker.textContent = I18N.t("view.kickerLibrary");
+    elements.viewTitle.textContent = I18N.t("view.library");
   }
 }
 
@@ -1063,10 +1071,10 @@ function renderProviderState() {
   elements.settingsStatusDot.setAttribute(
     "aria-label",
     ready === true
-      ? "Codex Agent 已就绪"
+      ? I18N.t("common.codexReady")
       : ready === false
-        ? "Codex Agent 尚未就绪"
-        : "Codex Agent 状态未知",
+        ? I18N.t("common.codexNotReady")
+        : I18N.t("common.codexUnknown"),
   );
 }
 
@@ -1084,7 +1092,7 @@ function updateNavState() {
 function renderCollectionNav() {
   if (!state.collections.length) {
     elements.collectionNav.innerHTML =
-      '<p class="rail-footnote">尚未建立收藏集</p>';
+      '<p class="rail-footnote">' + I18N.t("inspector.noCollections") + '</p>';
     return;
   }
 
@@ -1113,9 +1121,9 @@ function renderCollectionOverview() {
       <div class="empty-library-panel">
         <img class="empty-library-illustration" src="/assets/illustrations/empty-library.png" alt="" aria-hidden="true" />
         <div>
-          <h2>尚未建立收藏集</h2>
-           <p>将研究中的方向整理成收藏集，之后可从影像检视器加入素材。</p>
-          <button class="button button--primary" type="button" data-action="new-collection">新增收藏集</button>
+          <h2>${I18N.t("inspector.noCollections")}</h2>
+           <p>${I18N.t("collection.emptyDesc")}</p>
+          <button class="button button--primary" type="button" data-action="new-collection">${I18N.t("common.newCollection")}</button>
         </div>
       </div>`;
     return;
@@ -1126,9 +1134,9 @@ function renderCollectionOverview() {
       (collection) => `
         <div class="collection-row">
           <strong>${escapeHTML(collection.name)}</strong>
-          <output>${formatNumber(collection.itemCount)} 张</output>
+          <output>${I18N.t("view.countItems", { n: formatNumber(collection.itemCount) })}</output>
           <button class="button button--quiet" type="button" data-collection-id="${escapeHTML(collection.id)}">
-            开启索引
+            ${I18N.t("collection.openIndex")}
           </button>
         </div>`,
     )
@@ -1156,15 +1164,18 @@ function renderGallery() {
   const renderedAssets = useSynthetic ? state.syntheticAssets : assets;
 
   const contextLabel = state.activeCollectionId
-    ? activeCollection()?.name || "收藏集"
+    ? activeCollection()?.name || I18N.t("view.collection")
     : state.view === "inbox"
-      ? "待整理"
+      ? I18N.t("view.inbox")
       : state.view === "trash"
-        ? "资源回收筒"
-        : "素材库";
+        ? I18N.t("view.trash")
+        : I18N.t("view.library");
   elements.resultSummary.textContent = useSynthetic
-    ? "资料库目前为空 · 显示 8 张合成介面研究"
-    : `${contextLabel} · ${formatNumber(assets.length)} 张影像`;
+    ? I18N.t("gallery.contextEmpty", { n: state.syntheticAssets.length })
+    : I18N.t("gallery.contextCount", {
+        label: contextLabel,
+        n: formatNumber(assets.length),
+      });
 
   if (!renderedAssets.length) {
     const trashEmpty = state.view === "trash";
@@ -1172,20 +1183,20 @@ function renderGallery() {
       <div class="empty-library-panel">
         <img class="empty-library-illustration" src="/assets/illustrations/empty-library.png" alt="" aria-hidden="true" />
         <div>
-          <h2>${trashEmpty ? "回收筒是空的" : apiLibraryEmpty ? "素材库目前为空" : "没有符合条件的影像"}</h2>
+          <h2>${trashEmpty ? I18N.t("gallery.emptyTrash") : apiLibraryEmpty ? I18N.t("gallery.emptyLibrary") : I18N.t("gallery.emptyTitle")}</h2>
           <p>${
             trashEmpty
-              ? "删除的素材会先移到这里，恢复或彻底删除前都还找得回来。"
+              ? I18N.t("gallery.emptyTrashDesc")
               : apiLibraryEmpty
-                ? "汇入影像，或把图片放入监看资料夹后执行扫描。"
-                : "调整搜寻字词或清除筛选条件；资料不会因为没有结果而被移除。"
+                ? I18N.t("gallery.emptyLibraryDesc")
+                : I18N.t("gallery.emptyNoMatchDesc")
           }</p>
           ${
             trashEmpty
               ? ""
               : apiLibraryEmpty
-                ? '<button class="button button--primary" type="button" data-action="import">汇入第一张影像</button>'
-                : '<button class="button button--quiet" type="button" data-action="clear-filters">清除条件</button>'
+                ? `<button class="button button--primary" type="button" data-action="import">${I18N.t("gallery.importFirst")}</button>`
+                : `<button class="button button--quiet" type="button" data-action="clear-filters">${I18N.t("common.clearFilters")}</button>`
           }
         </div>
       </div>`;
@@ -1195,8 +1206,8 @@ function renderGallery() {
   const syntheticIntro = useSynthetic
     ? `
       <div class="synthetic-intro">
-        <p><strong>合成介面研究</strong>这些 inline SVG 只在 API 素材库为空时出现，不会写入资料库或送交 Codex。</p>
-        <button class="button button--primary" type="button" data-action="import">汇入真实影像</button>
+        <p><strong>${I18N.t("gallery.syntheticIntro")}</strong>${I18N.t("gallery.syntheticDesc")}</p>
+        <button class="button button--primary" type="button" data-action="import">${I18N.t("gallery.importReal")}</button>
       </div>`
     : "";
 
@@ -1212,10 +1223,10 @@ function renderAssetCard(asset, index, total) {
   const batchSelected = state.selectedIds.has(asset.id);
   const isTrash = state.view === "trash";
   const dimensions =
-    asset.width && asset.height ? `${asset.width} × ${asset.height}` : "尺寸未记录";
+    asset.width && asset.height ? `${asset.width} × ${asset.height}` : I18N.t("gallery.dimensionsUnknown");
   const imageUrl = safeMediaUrl(asset.mediaUrl);
   const stateBadge = asset.synthetic
-    ? '<span class="synthetic-flag">合成示意</span>'
+    ? `<span class="synthetic-flag">${I18N.t("gallery.syntheticFlag")}</span>`
     : `<span class="asset-state" data-state="${escapeHTML(asset.status)}">${escapeHTML(
         stateLabel(asset.status),
       )}</span>`;
@@ -1226,7 +1237,7 @@ function renderAssetCard(asset, index, total) {
         class="asset-select-toggle"
         type="button"
         data-batch-id="${escapeHTML(asset.id)}"
-        aria-label="${batchSelected ? "从批次移除" : "加入批次"}：${escapeHTML(asset.title)}"
+        aria-label="${batchSelected ? I18N.t("gallery.removeFromBatch") : I18N.t("gallery.addToBatch")}：${escapeHTML(asset.title)}"
         aria-pressed="${batchSelected}"
       >
         <svg class="icon" aria-hidden="true"><use href="#icon-check"></use></svg>
@@ -1238,7 +1249,7 @@ function renderAssetCard(asset, index, total) {
         class="asset-trash-toggle"
         type="button"
         data-trash-id="${escapeHTML(asset.id)}"
-        aria-label="移入回收筒：${escapeHTML(asset.title)}"
+        aria-label="${I18N.t("gallery.moveToTrash")}：${escapeHTML(asset.title)}"
       >
         <svg class="icon" aria-hidden="true"><use href="#icon-trash"></use></svg>
       </button>`;
@@ -1251,7 +1262,7 @@ function renderAssetCard(asset, index, total) {
           data-restore-id="${escapeHTML(asset.id)}"
         >
           <svg class="icon" aria-hidden="true"><use href="#icon-restore"></use></svg>
-          <span>恢复</span>
+          <span>${I18N.t("common.restore")}</span>
         </button>
         <button
           class="button button--danger"
@@ -1259,7 +1270,7 @@ function renderAssetCard(asset, index, total) {
           data-purge-id="${escapeHTML(asset.id)}"
         >
           <svg class="icon" aria-hidden="true"><use href="#icon-trash"></use></svg>
-          <span>彻底删除</span>
+          <span>${I18N.t("common.deleteForever")}</span>
         </button>
       </div>`
     : "";
@@ -1288,7 +1299,7 @@ function renderAssetCard(asset, index, total) {
         class="asset-open"
         type="button"
         data-open-asset="${escapeHTML(asset.id)}"
-        aria-label="检视 ${escapeHTML(asset.title)}"
+        aria-label="${I18N.t("gallery.view")} ${escapeHTML(asset.title)}"
         aria-pressed="${current}"
       >
         ${
@@ -1307,7 +1318,7 @@ function renderAssetCard(asset, index, total) {
       ${
         asset.synthetic || isTrash
           ? ""
-          : `<div class="star-rating" role="group" aria-label="评分 ${asset.rating}/5">
+          : `<div class="star-rating" role="group" aria-label="${I18N.t("gallery.rating", { rating: asset.rating })}">
               ${[1, 2, 3, 4, 5]
                 .map(
                   (star) => `
@@ -1316,7 +1327,7 @@ function renderAssetCard(asset, index, total) {
                   class="star ${asset.rating >= star ? "is-filled" : ""}"
                   data-star="${star}"
                   data-asset-id="${escapeHTML(asset.id)}"
-                  aria-label="设为 ${star} 星"
+                  aria-label="${I18N.t("gallery.setStar", { star })}"
                   aria-pressed="${asset.rating >= star}"
                 >
                   <svg class="icon" aria-hidden="true"><use href="#icon-star"></use></svg>
@@ -1364,7 +1375,7 @@ function visualDnaRows(visualDna, data) {
         .map(
           ([key, value]) => `
             <div>
-              <dt>${escapeHTML(DNA_LABELS[key] || key)}</dt>
+              <dt>${escapeHTML(dnaLabel(key))}</dt>
               <dd>${escapeHTML(value)}</dd>
             </div>`,
         )
@@ -1373,13 +1384,13 @@ function visualDnaRows(visualDna, data) {
 }
 
 function renderPalette(palette) {
-  if (!palette.length) return '<p class="analysis-empty">尚未撷取色票。</p>';
+  if (!palette.length) return `<p class="analysis-empty">${I18N.t("inspector.noPalette")}</p>`;
   return `
     <div class="palette">
       ${palette
         .map(
           (swatch) => `
-            <button class="swatch" type="button" data-copy-swatch="${escapeHTML(swatch.hex)}" aria-label="复制色票 ${escapeHTML(swatch.hex)}" title="复制 ${escapeHTML(swatch.hex)}">
+            <button class="swatch" type="button" data-copy-swatch="${escapeHTML(swatch.hex)}" aria-label="${I18N.t("gallery.copySwatch", { hex: escapeHTML(swatch.hex) })}" title="${I18N.t("gallery.copySwatch", { hex: escapeHTML(swatch.hex) })}">
               ${renderSwatchColor(swatch.hex)}
               <code>${escapeHTML(swatch.hex)}</code>
             </button>`,
@@ -1400,16 +1411,16 @@ function renderPromptBlock(label, key, value) {
     return `
       <div class="prompt-block">
         <div class="prompt-label"><span>${escapeHTML(label)}</span></div>
-        <p class="analysis-empty">尚未产生这组提示词。</p>
+        <p class="analysis-empty">${I18N.t("inspector.noPrompt")}</p>
       </div>`;
   }
   return `
     <div class="prompt-block">
       <div class="prompt-label">
         <span>${escapeHTML(label)}</span>
-        <span class="prompt-actions"><button class="prompt-toggle" type="button" data-toggle-prompt="${escapeHTML(key)}" aria-expanded="false">展开全文</button><button class="prompt-copy" type="button" data-copy-prompt="${escapeHTML(key)}">
+        <span class="prompt-actions"><button class="prompt-toggle" type="button" data-toggle-prompt="${escapeHTML(key)}" aria-expanded="false">${I18N.t("common.expand")}</button><button class="prompt-copy" type="button" data-copy-prompt="${escapeHTML(key)}">
           <svg class="icon" aria-hidden="true"><use href="#icon-copy"></use></svg>
-          复制
+          ${I18N.t("common.copy")}
         </button></span>
       </div>
       <pre class="prompt-text">${escapeHTML(value)}</pre>
@@ -1432,8 +1443,8 @@ function renderSmartCollectionSuggestions(asset) {
   return `
     <div class="smart-collection-suggestions">
       <div class="smart-collection-heading">
-        <strong>智能分类建议</strong>
-        <small>根据 Codex 分析</small>
+        <strong>${I18N.t("inspector.smartTitle")}</strong>
+        <small>${I18N.t("inspector.smartSource")}</small>
       </div>
       <div class="smart-collection-list">
         ${suggestions
@@ -1449,11 +1460,11 @@ function renderSmartCollectionSuggestions(asset) {
                 ${joined ? "disabled" : ""}
                 data-smart-collection="${escapeHTML(name)}"
                 data-smart-asset-id="${escapeHTML(asset.id)}"
-              >${joined ? "已加入" : collection ? "加入" : "创建并加入"} · ${escapeHTML(name)}</button>`;
+              >${joined ? I18N.t("common.added") : collection ? I18N.t("common.add") : I18N.t("inspector.smartJoin")} · ${escapeHTML(name)}</button>`;
           })
           .join("")}
       </div>
-      <small class="smart-collection-hint">点击建议即可创建或加入对应收藏集。</small>
+      <small class="smart-collection-hint">${I18N.t("inspector.smartHint")}</small>
     </div>`;
 }
 
@@ -1463,8 +1474,8 @@ function renderCollectionControls(asset) {
     return `
       ${smartSuggestions}
       <div class="collection-control">
-        <p>尚未建立收藏集。</p>
-        <button class="text-button" type="button" data-action="new-collection">新增收藏集</button>
+        <p>${I18N.t("inspector.noCollections")}</p>
+        <button class="text-button" type="button" data-action="new-collection">${I18N.t("common.newCollection")}</button>
       </div>`;
   }
 
@@ -1474,9 +1485,9 @@ function renderCollectionControls(asset) {
   return `
     ${smartSuggestions}
     <div class="collection-control">
-      <label class="sr-only" for="inspector-collection-select">选择收藏集</label>
+      <label class="sr-only" for="inspector-collection-select">${I18N.t("inspector.collectionSelectAria")}</label>
       <select id="inspector-collection-select">
-        <option value="">选择收藏集…</option>
+        <option value="">${I18N.t("inspector.selectCollection")}</option>
         ${state.collections
           .map(
             (collection) =>
@@ -1488,7 +1499,7 @@ function renderCollectionControls(asset) {
       </select>
       <button class="button button--quiet" type="button" data-add-to-collection="${escapeHTML(
         asset.id,
-      )}">加入</button>
+      )}\">${I18N.t("common.add")}</button>
     </div>
     ${
       memberships.length
@@ -1500,7 +1511,7 @@ function renderCollectionControls(asset) {
                   type="button"
                   data-remove-collection="${escapeHTML(collection.id)}"
                   data-asset-id="${escapeHTML(asset.id)}"
-                >移出 ${escapeHTML(collection.name)}</button>`,
+                >${I18N.t("inspector.removeFromCollection", { name: escapeHTML(collection.name) })}</button>`,
             )
             .join("")}</div>`
         : ""
@@ -1516,7 +1527,7 @@ function renderInspector() {
     document.body.classList.remove("is-inspector-open");
     elements.inspector.removeAttribute("role");
     elements.inspector.removeAttribute("aria-modal");
-    elements.inspector.setAttribute("aria-label", "影像详细检视");
+    elements.inspector.setAttribute("aria-label", I18N.t("inspector.aria"));
     updateAnalyzeControls();
     return;
   }
@@ -1551,12 +1562,12 @@ function renderInspector() {
     elements.inspector.setAttribute("aria-modal", "true");
     elements.inspector.setAttribute(
       "aria-label",
-      `影像详细检视：${asset.title}`,
+      I18N.t("inspector.ariaTitle", { title: asset.title }),
     );
   } else {
     elements.inspector.removeAttribute("role");
     elements.inspector.removeAttribute("aria-modal");
-    elements.inspector.setAttribute("aria-label", "影像详细检视");
+    elements.inspector.setAttribute("aria-label", I18N.t("inspector.aria"));
   }
 
   elements.inspectorContent.innerHTML = `
@@ -1565,7 +1576,7 @@ function renderInspector() {
       <div class="inspector-title">
         <p>${escapeHTML(stateLabel(asset.status))}</p>
         <h2>${escapeHTML(asset.title)}</h2>
-        <div class="inspector-rating" role="group" aria-label="评分 ${asset.rating}/5">
+        <div class="inspector-rating" role="group" aria-label="${I18N.t("gallery.rating", { rating: asset.rating })}">
           ${[1, 2, 3, 4, 5]
             .map(
               (star) => `
@@ -1574,7 +1585,7 @@ function renderInspector() {
               class="star ${asset.rating >= star ? "is-filled" : ""}"
               data-star="${star}"
               data-asset-id="${escapeHTML(asset.id)}"
-              aria-label="设为 ${star} 星"
+              aria-label="${I18N.t("gallery.setStar", { star })}"
               aria-pressed="${asset.rating >= star}"
             >
               <svg class="icon" aria-hidden="true"><use href="#icon-star"></use></svg>
@@ -1584,28 +1595,28 @@ function renderInspector() {
           <span class="inspector-rating-value">${asset.rating}/5</span>
         </div>
       </div>
-      <button class="icon-button" type="button" data-close-inspector aria-label="关闭详细检视">
-        <span class="inspector-back-label">返回素材库</span>
+      <button class="icon-button" type="button" data-close-inspector aria-label="${I18N.t("common.closeInspector")}">
+        <span class="inspector-back-label">${I18N.t("common.backToLibrary")}</span>
         <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
       </button>
     </div>
 
-    <nav class="inspector-nav" aria-label="检查器章节">
-      <button type="button" data-inspector-jump="overview">概览</button>
-      <button type="button" data-inspector-jump="visual">视觉分析</button>
-      <button type="button" data-inspector-jump="implementation">实作输出</button>
-      <button type="button" data-inspector-jump="management">资料管理</button>
+    <nav class="inspector-nav" aria-label="${I18N.t("inspector.navAria")}">
+      <button type="button" data-inspector-jump="overview">${I18N.t("inspector.jumpOverview")}</button>
+      <button type="button" data-inspector-jump="visual">${I18N.t("inspector.jumpVisual")}</button>
+      <button type="button" data-inspector-jump="implementation">${I18N.t("inspector.jumpImplementation")}</button>
+      <button type="button" data-inspector-jump="management">${I18N.t("inspector.jumpManagement")}</button>
     </nav>
     </div>
 
     ${
       asset.synthetic
-        ? '<p class="synthetic-disclosure">合成介面研究：只在 API 素材库为空时显示，不会储存、编辑或送交 Codex。</p>'
+        ? `<p class="synthetic-disclosure">${I18N.t("inspector.syntheticDisclosure")}</p>`
         : ""
     }
 
     <section class="inspector-section inspector-overview" id="inspector-overview">
-    <div class="inspector-section-heading"><h3>概览 <span class="section-tag section-tag--preview">预览</span></h3><span class="section-index">O01</span></div>
+    <div class="inspector-section-heading"><h3>${I18N.t("inspector.jumpOverview")} <span class="section-tag section-tag--preview">${I18N.t("inspector.previewTag")}</span></h3><span class="section-index">O01</span></div>
     <figure class="inspector-preview">
       ${
         imageUrl
@@ -1615,7 +1626,7 @@ function renderInspector() {
       <figcaption>
         <span>${escapeHTML(asset.fileName)}</span>
         <span>${escapeHTML(dimensions)} · ${escapeHTML(
-          asset.mimeType || "格式未记录",
+          asset.mimeType || I18N.t("inspector.formatUnknown"),
         )}</span>
       </figcaption>
     </figure>
@@ -1629,27 +1640,27 @@ function renderInspector() {
           type="button"
           data-analyze-id="${escapeHTML(asset.id)}"
           ${inQueue ? "disabled" : ""}
-        >${inQueue ? "已在 Codex 队列" : "送交 Codex"}</button>
-        <span>${escapeHTML(analysis.provider || "codex")} · 信心度 ${escapeHTML(
+        >${inQueue ? I18N.t("inspector.inQueue") : I18N.t("inspector.submitCodex")}</button>
+        <span>${escapeHTML(analysis.provider || "codex")} · ${I18N.t("inspector.confidence")} ${escapeHTML(
           confidence,
         )}</span>
         <small class="codex-disclosure">
-           按下后会将此影像传送至 Codex 服务分析；单纯汇入不会上传。
+           ${I18N.t("inspector.submitHint")}
         </small>
       </div>`
         : ""
     }
 
-    <p class="analysis-summary">${escapeHTML(analysis.description || "尚未建立分析摘要；送交 Codex 后会在这里显示。")}</p>
-    <div class="inspector-mobile-actions" aria-label="主要操作">
-      <button class="button button--primary" type="button" data-copy-prompt="visual" ${analysis.prompts.visual ? "" : "disabled"}>复制 Prompt</button>
-      ${asset.synthetic ? "" : '<button class="button button--quiet" type="button" data-open-metadata>编辑 metadata</button>'}
+    <p class="analysis-summary">${escapeHTML(analysis.description || I18N.t("inspector.noSummary"))}</p>
+    <div class="inspector-mobile-actions" aria-label="${I18N.t("inspector.mainActions")}">
+      <button class="button button--primary" type="button" data-copy-prompt="visual" ${analysis.prompts.visual ? "" : "disabled"}>${I18N.t("inspector.copyPrompt")}</button>
+      ${asset.synthetic ? "" : `<button class="button button--quiet" type="button" data-open-metadata>${I18N.t("inspector.editMetadata")}</button>`}
     </div>
     </section>
 
     <section class="inspector-section" id="inspector-visual">
       <div class="inspector-section-heading">
-        <h3>视觉分析 <span class="section-tag section-tag--visual">视觉 DNA</span></h3>
+        <h3>${I18N.t("inspector.jumpVisual")} <span class="section-tag section-tag--visual">${I18N.t("inspector.visualTag")}</span></h3>
         <span class="section-index">A01</span>
       </div>
       ${
@@ -1659,15 +1670,15 @@ function renderInspector() {
           `
           : `
             <div class="analysis-empty">
-              <strong>尚未建立 Visual DNA</strong>
-               选取「送交 Codex」后，这里会显示可编辑的视觉分类与描述。
+              <strong>${I18N.t("inspector.noDna")}</strong>
+               ${I18N.t("inspector.noDnaHint")}
             </div>`
       }
     </section>
 
     <section class="inspector-section inspector-section--sub">
       <div class="inspector-section-heading">
-        <h3>色票</h3>
+        <h3>${I18N.t("inspector.paletteTitle")}</h3>
         <span class="section-index">A02</span>
       </div>
       ${renderPalette(analysis.palette)}
@@ -1675,18 +1686,18 @@ function renderInspector() {
 
     <section class="inspector-section inspector-section--sub">
       <div class="inspector-section-heading">
-        <h3>为何有效</h3>
+        <h3>${I18N.t("inspector.whyWorks")}</h3>
         <span class="section-index">A03</span>
       </div>
-      ${renderList(analysis.whyItWorks, "evidence-list", "尚未产生设计判读。")}
+      ${renderList(analysis.whyItWorks, "evidence-list", I18N.t("inspector.noEvidence"))}
     </section>
 
     <section class="inspector-section" id="inspector-implementation">
       <div class="inspector-section-heading">
-        <h3>实作输出 <span class="section-tag section-tag--codex">用于 Codex</span></h3>
+        <h3>${I18N.t("inspector.jumpImplementation")} <span class="section-tag section-tag--codex">${I18N.t("inspector.codexTag")}</span></h3>
         <span class="section-index">A04</span>
       </div>
-      ${renderList(analysis.recipe, "recipe-list", "尚未产生实作步骤。")}
+      ${renderList(analysis.recipe, "recipe-list", I18N.t("inspector.noRecipe"))}
     </section>
 
     <section class="inspector-section inspector-section--sub">
@@ -1694,19 +1705,19 @@ function renderInspector() {
         <h3>Prompt Kit</h3>
         <span class="section-index">A05</span>
       </div>
-      ${renderPromptBlock("视觉提示词", "visual", analysis.prompts.visual)}
+      ${renderPromptBlock(I18N.t("inspector.promptVisual"), "visual", analysis.prompts.visual)}
       ${renderPromptBlock(
-        "UI 实作 brief",
+        I18N.t("inspector.promptUIBrief"),
         "implementation",
         analysis.prompts.implementation,
       )}
       ${renderPromptBlock(
-        "Design token 提示词",
+        I18N.t("inspector.promptToken"),
         "tokens",
         analysis.prompts.tokens,
       )}
       ${renderPromptBlock(
-        "负面条件",
+        I18N.t("inspector.promptNegative"),
         "negative",
         analysis.prompts.negative,
       )}
@@ -1714,16 +1725,16 @@ function renderInspector() {
 
       <section class="inspector-section" id="inspector-management">
         <div class="inspector-section-heading">
-        <h3>资料管理 <span class="section-tag section-tag--source">来源与资料</span></h3>
+        <h3>${I18N.t("inspector.jumpManagement")} <span class="section-tag section-tag--source">${I18N.t("inspector.sourceTag")}</span></h3>
         <span class="section-index">A06</span>
       </div>
-      <details class="technical-evidence"><summary>展开技术证据</summary><dl class="provenance-list">
-        <div><dt>相对路径</dt><dd>${escapeHTML(asset.relativePath || "—")}</dd></div>
-        <div><dt>档案大小</dt><dd>${escapeHTML(formatBytes(asset.fileSize))}</dd></div>
-        <div><dt>杂凑</dt><dd>${escapeHTML(asset.hash || "—")}</dd></div>
-        <div><dt>Codex 模型</dt><dd>${escapeHTML(analysis.model || "—")}</dd></div>
-        <div><dt>Prompt 版</dt><dd>${escapeHTML(analysis.promptVersion || "—")}</dd></div>
-        <div><dt>分析时间</dt><dd>${escapeHTML(formatDate(analysis.analyzedAt))}</dd></div>
+      <details class="technical-evidence"><summary>${I18N.t("inspector.expandEvidence")}</summary><dl class="provenance-list">
+        <div><dt>${I18N.t("inspector.relPath")}</dt><dd>${escapeHTML(asset.relativePath || "—")}</dd></div>
+        <div><dt>${I18N.t("inspector.fileSize")}</dt><dd>${escapeHTML(formatBytes(asset.fileSize))}</dd></div>
+        <div><dt>${I18N.t("inspector.hash")}</dt><dd>${escapeHTML(asset.hash || "—")}</dd></div>
+        <div><dt>${I18N.t("inspector.model")}</dt><dd>${escapeHTML(analysis.model || "—")}</dd></div>
+        <div><dt>${I18N.t("inspector.promptVersion")}</dt><dd>${escapeHTML(analysis.promptVersion || "—")}</dd></div>
+        <div><dt>${I18N.t("inspector.analyzedAt")}</dt><dd>${escapeHTML(formatDate(analysis.analyzedAt))}</dd></div>
       </dl></details>
     </section>
 
@@ -1733,37 +1744,37 @@ function renderInspector() {
         : `
       <section class="inspector-section inspector-section--sub">
         <div class="inspector-section-heading">
-          <h3>收藏集</h3>
+          <h3>${I18N.t("view.collections")}</h3>
           <span class="section-index">A07</span>
         </div>
         ${renderCollectionControls(asset)}
       </section>
 
       <details class="inspector-section metadata-disclosure" ${state.metadataEditing ? "open" : ""}>
-          <summary><span>编辑 metadata</span><span>展开编辑</span></summary>
+          <summary><span>${I18N.t("inspector.editMetaSummary")}</span><span>${I18N.t("inspector.expandMetaSummary")}</span></summary>
         <form class="metadata-form" data-metadata-form="${escapeHTML(asset.id)}">
           <label class="field">
-            <span>标题</span>
+            <span>${I18N.t("inspector.title")}</span>
             <input name="title" maxlength="180" value="${escapeHTML(asset.title)}" />
           </label>
           <label class="field">
-            <span>来源 URL</span>
+            <span>${I18N.t("inspector.sourceUrl")}</span>
             <input name="sourceUrl" type="url" value="${escapeHTML(asset.sourceUrl)}" placeholder="https://" />
           </label>
           <label class="field">
-            <span>权利备注</span>
-            <textarea name="rightsNote" placeholder="授权、作者、用途限制…">${escapeHTML(
+            <span>${I18N.t("inspector.rightsNote")}</span>
+            <textarea name="rightsNote" placeholder="${I18N.t("inspector.rightsPlaceholder")}">${escapeHTML(
               asset.rightsNote,
             )}</textarea>
           </label>
           <label class="field">
-            <span>人工笔记</span>
-            <textarea name="notes" placeholder="可重用的版面或实作观察…">${escapeHTML(
+            <span>${I18N.t("inspector.notes")}</span>
+            <textarea name="notes" placeholder="${I18N.t("inspector.notesPlaceholder")}">${escapeHTML(
               asset.notes,
             )}</textarea>
           </label>
           <div class="metadata-actions">
-            <button class="button button--primary" type="submit">储存 metadata</button>
+            <button class="button button--primary" type="submit">${I18N.t("inspector.saveMetadata")}</button>
           </div>
         </form>
       </details>`
@@ -1802,15 +1813,15 @@ function updateAnalyzeControls() {
   elements.recognizeButton.disabled = ids.length === 0;
   elements.recognizeButton.title =
     ids.length > 0
-      ? `将 ${ids.length} 张影像送交 Codex`
-      : "请先选取一张真实影像";
+      ? I18N.t("action.submitN", { n: ids.length })
+      : I18N.t("action.submitHint2");
 }
 
 function renderBatchBar() {
   const count = state.selectedIds.size;
   const isTrash = state.view === "trash";
   elements.batchBar.hidden = count === 0;
-  elements.batchCount.textContent = `已选 ${formatNumber(count)} 张`;
+  elements.batchCount.textContent = I18N.t("action.batchCount", { n: formatNumber(count) });
   elements.batchAnalyzeButton.disabled = count === 0;
   elements.batchTrashButton.hidden = isTrash;
   elements.batchRestoreButton.hidden = !isTrash;
@@ -1833,17 +1844,17 @@ function renderQueue() {
 
   elements.queueActiveCount.textContent = String(active.length).padStart(2, "0");
   elements.queueSummaryText.textContent = active.length
-    ? `${active.length} 项执行或等待中 · 同时工作数 1`
+    ? I18N.t("queue.activeSummary", { n: active.length })
     : jobs.length
-      ? `最近 ${jobs.length} 项工作`
-      : "尚无工作";
+      ? I18N.t("queue.recentSummary", { n: jobs.length })
+      : I18N.t("queue.empty");
   elements.retryNeedsSetupButton.hidden = !needsSetup;
   elements.queueToggle.setAttribute("aria-expanded", String(state.queueExpanded));
   elements.app.classList.toggle("is-queue-expanded", state.queueExpanded);
 
   if (!jobs.length) {
     elements.queueTrack.innerHTML =
-      '<p class="queue-empty">选取影像并按「送交 Codex」，工作会出现在这里。</p>';
+      `<p class="queue-empty">${I18N.t("queue.emptyDesc")}</p>`;
     renderCounts();
     return;
   }
@@ -1881,7 +1892,7 @@ function renderQueue() {
           }
           <div class="queue-job-info">
             <strong class="queue-job-title">${escapeHTML(
-              asset?.title || `影像 ${job.assetId || "—"}`,
+              asset?.title || I18N.t("queue.jobFallback", { id: job.assetId || "—" }),
             )}</strong>
             <div class="queue-status-row">
               <span class="queue-stage">${escapeHTML(stage)}</span>
@@ -1918,23 +1929,23 @@ function renderSettings() {
   const provider = providerObject() || {};
   const ready = codexReadiness();
   elements.settingInboxPath.textContent =
-    state.paths.inbox || state.paths.inboxDirectory || "由本地服务管理";
+    state.paths.inbox || state.paths.inboxDirectory || I18N.t("queue.managedBy");
   elements.settingCodexModel.value = state.settings.codexModel || "";
   elements.codexReadiness.textContent =
     ready === true
-      ? `已就绪${provider.version ? ` · ${provider.version}` : ""}`
+      ? `${I18N.t("common.ready")}${provider.version ? ` · ${provider.version}` : ""}`
       : ready === false
-        ? "未就绪 · 请确认 Codex CLI 已安装并登入"
-        : "状态未知";
+        ? I18N.t("common.notReady")
+        : I18N.t("common.statusUnknown");
   elements.codexReadiness.classList.toggle("is-ready", ready === true);
   elements.codexReadiness.classList.toggle("needs-setup", ready === false);
   elements.codexExecutionMode.textContent =
     provider.execution ||
     provider.executionMode ||
     (state.settings.executionMode === "codex-agent"
-      ? "本地 Codex Agent"
+      ? I18N.t("common.localCodexAgent")
       : state.settings.executionMode) ||
-    "本地 Codex Agent";
+    I18N.t("common.localCodexAgent");
   elements.codexPromptVersion.textContent =
     state.settings.promptVersion || provider.promptVersion || "—";
 }
@@ -2041,7 +2052,7 @@ async function selectAsset(id, { scroll = false } = {}) {
       if (index >= 0) state.assets[index] = detail;
       renderInspector();
     } catch (error) {
-      notify(`无法读取完整 metadata：${error.message}`, "error");
+      notify(I18N.t("toast.metaReadFailed", { msg: error.message }), "error");
     }
   }
 
@@ -2189,10 +2200,10 @@ async function analyzeAssets(ids) {
     state.queueExpanded = true;
     await Promise.allSettled([refreshJobs(), refreshAssets()]);
     if (queued) {
-      notify(`${queued} 张影像已送交 Codex，队列同时工作数为 1。`);
+      notify(I18N.t("toast.submitted", { n: queued }));
     }
     if (errors.length) {
-      notify(`有 ${errors.length} 张未能排入队列：${errors[0]}`, "error");
+      notify(I18N.t("toast.submitErrors", { n: errors.length, first: errors[0] }), "error");
     }
   } finally {
     restoreButtons();
@@ -2206,7 +2217,7 @@ function readFileDataUrl(file) {
     const reader = new FileReader();
     reader.addEventListener("load", () => resolve(String(reader.result || "")));
     reader.addEventListener("error", () =>
-      reject(reader.error || new Error("无法读取档案")),
+      reject(reader.error || new Error(I18N.t("toast.readFileFailed"))),
     );
     reader.readAsDataURL(file);
   });
@@ -2215,13 +2226,13 @@ function readFileDataUrl(file) {
 async function importFiles(files) {
   const validFiles = [...files].filter((file) => file.type.startsWith("image/"));
   if (!validFiles.length) {
-    notify("没有可汇入的影像档案。", "error");
+    notify(I18N.t("toast.noFiles"), "error");
     return;
   }
 
   elements.importButton.disabled = true;
   const original = elements.importButton.innerHTML;
-  elements.importButton.textContent = `汇入 0 / ${validFiles.length}`;
+  elements.importButton.textContent = I18N.t("action.importProgress", { done: 0, total: validFiles.length });
   let imported = 0;
   let lastAssetId = null;
   const errors = [];
@@ -2241,7 +2252,7 @@ async function importFiles(files) {
       });
       imported += 1;
       lastAssetId = String(payload?.asset?.id || lastAssetId || "");
-      elements.importButton.textContent = `汇入 ${imported} / ${validFiles.length}`;
+      elements.importButton.textContent = I18N.t("action.importProgress", { done: imported, total: validFiles.length });
     } catch (error) {
       errors.push(`${file.name}：${error.message}`);
     }
@@ -2254,19 +2265,17 @@ async function importFiles(files) {
   if (lastAssetId) await selectAsset(lastAssetId, { scroll: true });
 
   if (imported) {
-    notify(
-      `${imported} 张影像已汇入并选取；确认后按「送交 Codex」开始辨识。`,
-    );
+    notify(I18N.t("toast.importDone", { n: imported }));
   }
   if (errors.length) {
-    notify(`有 ${errors.length} 张未汇入：${errors[0]}`, "error");
+    notify(I18N.t("toast.importErrors", { n: errors.length, first: errors[0] }), "error");
   }
 }
 
 async function scanFolder() {
   const original = elements.scanButton.innerHTML;
   elements.scanButton.disabled = true;
-  elements.scanButton.textContent = "扫描中…";
+  elements.scanButton.textContent = I18N.t("action.scanning");
   try {
     const result = await api("/api/scan", {
       method: "POST",
@@ -2274,12 +2283,14 @@ async function scanFolder() {
     });
     await loadBootstrap();
     notify(
-      `扫描完成：${formatNumber(result?.scanned ?? 0)} 个档案，新增 ${formatNumber(
-        result?.imported ?? 0,
-      )} 张，重复 ${formatNumber(result?.duplicates ?? 0)} 张。`,
+      I18N.t("toast.scanDone", {
+        files: formatNumber(result?.scanned ?? 0),
+        added: formatNumber(result?.imported ?? 0),
+        dupes: formatNumber(result?.duplicates ?? 0),
+      }),
     );
   } catch (error) {
-    notify(`扫描失败：${error.message}`, "error");
+    notify(I18N.t("toast.scanFailed", { msg: error.message }), "error");
   } finally {
     elements.scanButton.disabled = false;
     elements.scanButton.innerHTML = original;
@@ -2292,7 +2303,7 @@ async function saveMetadata(form) {
   const submit = form.querySelector('[type="submit"]');
   const original = submit.textContent;
   submit.disabled = true;
-  submit.textContent = "储存中…";
+  submit.textContent = I18N.t("common.saving");
   const data = new FormData(form);
   try {
     const updated = normalizeAsset(
@@ -2310,9 +2321,9 @@ async function saveMetadata(form) {
     if (index >= 0) state.assets[index] = updated;
     renderGallery();
     renderInspector();
-    notify("Metadata 已储存。");
+    notify(I18N.t("toast.metaSaved"));
   } catch (error) {
-    notify(`Metadata 储存失败：${error.message}`, "error");
+    notify(I18N.t("toast.metaSaveFailed", { msg: error.message }), "error");
     submit.disabled = false;
     submit.textContent = original;
   }
@@ -2338,15 +2349,15 @@ async function addToSuggestedCollection(assetId, name) {
     (item) => item.name.trim().toLowerCase() === name.trim().toLowerCase(),
   );
   if (!collection) collection = await createCollection(name);
-  if (!collection?.id) throw new Error("无法创建分类收藏集。");
+  if (!collection?.id) throw new Error(I18N.t("toast.createCollectionFailed"));
   await addToCollection(assetId, collection.id);
   if (state.selectedId === String(assetId)) await selectAsset(String(assetId));
-  notify(`已自动归类到「${name}」。`);
+  notify(I18N.t("toast.autoCategorized", { name }));
 }
 
 async function addToCollection(assetId, collectionId) {
   if (!collectionId) {
-    notify("请先选择收藏集。", "error");
+    notify(I18N.t("toast.selectCollectionFirst"), "error");
     return;
   }
   await api(`/api/collections/${encodeURIComponent(collectionId)}/items`, {
@@ -2358,7 +2369,7 @@ async function addToCollection(assetId, collectionId) {
     asset.collectionIds.push(collectionId);
   }
   await refreshCollections();
-  notify("影像已加入收藏集。");
+  notify(I18N.t("toast.addedToCollection"));
 }
 
 async function removeFromCollection(assetId, collectionId) {
@@ -2373,7 +2384,7 @@ async function removeFromCollection(assetId, collectionId) {
     asset.collectionIds = asset.collectionIds.filter((id) => id !== collectionId);
   }
   await refreshCollections();
-  notify("影像已移出收藏集。");
+  notify(I18N.t("toast.removedFromCollection"));
 }
 
 async function openCollection(id) {
@@ -2396,7 +2407,7 @@ function clearFilters() {
   elements.ratingFilter.value = "";
   elements.sortSelect.value = "newest";
   refreshAssets().catch((error) =>
-    notify(`无法清除条件：${error.message}`, "error"),
+    notify(I18N.t("toast.clearFiltersFailed", { msg: error.message }), "error"),
   );
 }
 
@@ -2421,9 +2432,9 @@ async function copyPrompt(key) {
   if (!prompt) return;
   try {
     await navigator.clipboard.writeText(prompt);
-    notify("提示词已复制到剪贴簿。");
+    notify(I18N.t("toast.promptCopied"));
   } catch (error) {
-    notify(`无法复制提示词：${error.message}`, "error");
+    notify(I18N.t("toast.promptCopyFailed", { msg: error.message }), "error");
   }
 }
 
@@ -2532,7 +2543,7 @@ elements.searchForm.addEventListener("submit", (event) => {
   window.clearTimeout(state.searchTimer);
   state.query = elements.searchInput.value.trim();
   refreshAssets().catch((error) =>
-    notify(`搜寻失败：${error.message}`, "error"),
+    notify(I18N.t("toast.searchFailed", { msg: error.message }), "error"),
   );
 });
 
@@ -2541,7 +2552,7 @@ elements.searchInput.addEventListener("input", () => {
   state.searchTimer = window.setTimeout(() => {
     state.query = elements.searchInput.value.trim();
     refreshAssets().catch((error) =>
-      notify(`搜寻失败：${error.message}`, "error"),
+      notify(I18N.t("toast.searchFailed", { msg: error.message }), "error"),
     );
   }, 280);
 });
@@ -2554,21 +2565,21 @@ elements.disciplineFilter.addEventListener("change", () => {
 elements.statusFilter.addEventListener("change", () => {
   state.status = elements.statusFilter.value;
   refreshAssets().catch((error) =>
-    notify(`筛选失败：${error.message}`, "error"),
+    notify(I18N.t("toast.filterFailed", { msg: error.message }), "error"),
   );
 });
 
 elements.ratingFilter.addEventListener("change", () => {
   state.rating = finiteNumber(elements.ratingFilter.value, 0);
   refreshAssets().catch((error) =>
-    notify(`筛选失败：${error.message}`, "error"),
+    notify(I18N.t("toast.filterFailed", { msg: error.message }), "error"),
   );
 });
 
 elements.sortSelect.addEventListener("change", () => {
   state.sort = elements.sortSelect.value;
   refreshAssets().catch((error) =>
-    notify(`排序失败：${error.message}`, "error"),
+    notify(I18N.t("toast.sortFailed", { msg: error.message }), "error"),
   );
 });
 
@@ -2621,9 +2632,9 @@ elements.collectionForm.addEventListener("submit", async (event) => {
     await createCollection(name);
     closeDialog(elements.collectionDialog);
     elements.collectionForm.reset();
-    notify(`已建立收藏集「${name}」。`);
+    notify(I18N.t("toast.collectionCreated", { name }));
   } catch (error) {
-    notify(`无法建立收藏集：${error.message}`, "error");
+    notify(I18N.t("toast.collectionCreateFailed", { msg: error.message }), "error");
   } finally {
     submit.disabled = false;
   }
@@ -2634,7 +2645,7 @@ elements.settingsForm.addEventListener("submit", async (event) => {
   const submit = elements.settingsForm.querySelector('[type="submit"]');
   submit.disabled = true;
   const original = submit.textContent;
-  submit.textContent = "储存中…";
+  submit.textContent = I18N.t("common.saving");
   try {
     state.settings = asObject(
       await api("/api/settings", {
@@ -2646,9 +2657,9 @@ elements.settingsForm.addEventListener("submit", async (event) => {
     );
     await refreshProvider();
     closeDialog(elements.settingsDialog);
-    notify("Codex 设定已储存。");
+    notify(I18N.t("toast.settingsSaved"));
   } catch (error) {
-    notify(`设定储存失败：${error.message}`, "error");
+    notify(I18N.t("toast.settingsSaveFailed", { msg: error.message }), "error");
   } finally {
     submit.disabled = false;
     submit.textContent = original;
@@ -2664,9 +2675,9 @@ elements.retryNeedsSetupButton.addEventListener("click", async () => {
       body: JSON.stringify({}),
     });
     await Promise.allSettled([refreshProvider(), refreshJobs()]);
-    notify(`已将 ${formatNumber(result?.retried ?? 0)} 项工作重新排入 Codex 队列。`);
+    notify(I18N.t("toast.retried", { n: formatNumber(result?.retried ?? 0) }));
   } catch (error) {
-    notify(`无法重试工作：${error.message}`, "error");
+    notify(I18N.t("toast.retryFailed", { msg: error.message }), "error");
   } finally {
     button.disabled = false;
   }
@@ -2696,9 +2707,9 @@ async function trashAsset(assetId) {
     if (state.selectedId === assetId) state.selectedId = null;
     adjustTrashCount(1);
     await refreshAssets();
-    notify("已移入回收筒。");
+    notify(I18N.t("toast.movedToTrash"));
   } catch (error) {
-    notify(`无法移入回收筒：${error.message}`, "error");
+    notify(I18N.t("toast.moveToTrashFailed", { msg: error.message }), "error");
   }
 }
 
@@ -2708,22 +2719,22 @@ async function restoreTrashedAsset(assetId) {
     state.selectedIds.delete(assetId);
     adjustTrashCount(-1);
     await refreshAssets();
-    notify("已恢复。");
+    notify(I18N.t("toast.restored"));
   } catch (error) {
-    notify(`无法恢复：${error.message}`, "error");
+    notify(I18N.t("toast.restoreFailed", { msg: error.message }), "error");
   }
 }
 
 async function purgeTrashedAsset(assetId) {
-  if (!window.confirm("彻底删除后无法恢复，确定删除这张素材？")) return;
+  if (!window.confirm(I18N.t("toast.confirmDeleteOne"))) return;
   try {
     await api(`/api/assets/${assetId}?permanent=1`, { method: "DELETE" });
     state.selectedIds.delete(assetId);
     adjustTrashCount(-1);
     await refreshAssets();
-    notify("已彻底删除。");
+    notify(I18N.t("toast.deleted"));
   } catch (error) {
-    notify(`无法删除：${error.message}`, "error");
+    notify(I18N.t("toast.deleteFailed", { msg: error.message }), "error");
   }
 }
 
@@ -2736,9 +2747,9 @@ async function batchTrashAssets(ids) {
     state.selectedIds.clear();
     adjustTrashCount(ids.length);
     await refreshAssets();
-    notify(`已将 ${ids.length} 张移入回收筒。`);
+    notify(I18N.t("toast.movedBatch", { n: ids.length }));
   } catch (error) {
-    notify(`批次移入失败：${error.message}`, "error");
+    notify(I18N.t("toast.moveBatchFailed", { msg: error.message }), "error");
   }
 }
 
@@ -2751,15 +2762,15 @@ async function batchRestoreAssets(ids) {
     state.selectedIds.clear();
     adjustTrashCount(-ids.length);
     await refreshAssets();
-    notify(`已恢复 ${ids.length} 张。`);
+    notify(I18N.t("toast.restoredBatch", { n: ids.length }));
   } catch (error) {
-    notify(`批次恢复失败：${error.message}`, "error");
+    notify(I18N.t("toast.restoreBatchFailed", { msg: error.message }), "error");
   }
 }
 
 async function batchPurgeAssets(ids) {
   if (!ids.length) return;
-  if (!window.confirm(`彻底删除 ${ids.length} 张素材？此操作无法恢复。`)) return;
+  if (!window.confirm(I18N.t("toast.confirmDeleteBatch", { n: ids.length }))) return;
   try {
     for (const id of ids) {
       await api(`/api/assets/${id}?permanent=1`, { method: "DELETE" });
@@ -2767,9 +2778,9 @@ async function batchPurgeAssets(ids) {
     state.selectedIds.clear();
     adjustTrashCount(-ids.length);
     await refreshAssets();
-    notify(`已彻底删除 ${ids.length} 张。`);
+    notify(I18N.t("toast.deletedBatch", { n: ids.length }));
   } catch (error) {
-    notify(`批次删除失败：${error.message}`, "error");
+    notify(I18N.t("toast.deleteBatchFailed", { msg: error.message }), "error");
   }
 }
 
@@ -2797,7 +2808,7 @@ document.addEventListener("click", async (event) => {
       renderGallery();
       renderInspector();
     } catch (error) {
-      notify(`评分失败：${error.message}`, "error");
+      notify(I18N.t("toast.ratingFailed", { msg: error.message }), "error");
     }
     return;
   }
@@ -2898,7 +2909,7 @@ document.addEventListener("click", async (event) => {
         smartCollectionButton.dataset.smartCollection,
       );
     } catch (error) {
-      notify(`无法自动归类：${error.message}`, "error");
+      notify(I18N.t("toast.autoClassifyFailed", { msg: error.message }), "error");
     }
     return;
   }
@@ -2913,9 +2924,9 @@ document.addEventListener("click", async (event) => {
   if (swatchButton) {
     try {
       await navigator.clipboard.writeText(swatchButton.dataset.copySwatch);
-      notify(`已复制色值 ${swatchButton.dataset.copySwatch}。`);
+      notify(I18N.t("toast.swatchCopied", { hex: swatchButton.dataset.copySwatch }));
     } catch (error) {
-      notify(`无法复制色值：${error.message}`, "error");
+      notify(I18N.t("toast.swatchCopyFailed", { msg: error.message }), "error");
     }
     return;
   }
@@ -2925,7 +2936,7 @@ document.addEventListener("click", async (event) => {
     const block = promptToggle.closest(".prompt-block");
     const expanded = block.classList.toggle("is-expanded");
     promptToggle.setAttribute("aria-expanded", String(expanded));
-    promptToggle.textContent = expanded ? "收起" : "展开全文";
+    promptToggle.textContent = expanded ? I18N.t("common.collapse") : I18N.t("common.expand");
     return;
   }
 
@@ -2954,7 +2965,7 @@ document.addEventListener("click", async (event) => {
         select?.value || "",
       );
     } catch (error) {
-      notify(`无法加入收藏集：${error.message}`, "error");
+      notify(I18N.t("toast.collectionAddFailed", { msg: error.message }), "error");
     }
     return;
   }
@@ -2967,7 +2978,7 @@ document.addEventListener("click", async (event) => {
         removeCollectionButton.dataset.removeCollection,
       );
     } catch (error) {
-      notify(`无法移出收藏集：${error.message}`, "error");
+      notify(I18N.t("toast.collectionRemoveFailed", { msg: error.message }), "error");
     }
     return;
   }
@@ -2983,7 +2994,7 @@ document.addEventListener(
   (event) => {
     const image = event.target;
     if (!(image instanceof HTMLImageElement)) return;
-    image.alt = `${image.alt || "影像"}（无法读取）`;
+    image.alt = `${image.alt || I18N.t("gallery.altFallback")}${I18N.t("gallery.unreadable")}`;
     image.hidden = true;
     const placeholder = document.createElement("span");
     placeholder.className = "queue-placeholder-thumb";
@@ -3026,6 +3037,11 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
+document.addEventListener("stylebase:langchange", () => {
+  state.syntheticAssets = createSyntheticStudies().map(normalizeAsset);
+});
+
 state.syntheticAssets = createSyntheticStudies().map(normalizeAsset);
+window.renderAll = renderAll;
 loadBootstrap({ preserveSelection: false });
 state.pollTimer = window.setInterval(refreshJobs, 5500);

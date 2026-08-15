@@ -6,20 +6,21 @@ STORY: Import or scan references, filter the image-led sheet, then place one ima
 FIRST VIEWPORT: A window-like toolbar above an illustrated tool-caddy rail, an asymmetric contact sheet filling the center, and a light-table inspector anchoring right: backlit transparency up top, section tools on the rim, handwritten analysis notes below. A character-led queue runs below the desk.
 FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" approved 2026-08-14; the loupe ring marks the current section, the image is the hero.
 -->
-<html lang="zh-Hans">
+<html lang="zh-Hans" data-lang="zh">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Stylebase 是本地优先的视觉参考资料库，协助设计师整理、分析与重用网页、UI、产品与品牌设计影像。"
+      content="Stylebase 是本地优先的视觉参考资料库，协助设计师整理、分析与重用网页、UI、产品与品牌设计影像。" data-i18n-content="common.docDescription"
     />
     <meta name="color-scheme" content="light" />
-    <title>Stylebase — 视觉参考资料库</title>
+    <title data-i18n="common.docTitle">Stylebase — 视觉参考资料库</title>
     <link rel="stylesheet" href="/styles.css" />
+    <script src="/i18n.js"></script>
   </head>
   <body>
-    <a class="skip-link" href="#workspace">跳到视觉索引</a>
+    <a class="skip-link" href="#workspace" data-i18n="search.skipLink">跳到视觉索引</a>
 
     <svg class="icon-sprite" aria-hidden="true">
       <symbol id="icon-search" viewBox="0 0 24 24">
@@ -102,7 +103,7 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
 
     <div class="app-shell" id="app">
       <header class="topbar">
-        <a class="brand" href="/" aria-label="Stylebase 视觉索引首页">
+        <a class="brand" href="/" aria-label="Stylebase 视觉索引首页" data-i18n-aria="misc.homeAria">
           <span class="brand-lights" aria-hidden="true">
             <span class="brand-light brand-light--coral"></span>
             <span class="brand-light brand-light--sunflower"></span>
@@ -125,77 +126,78 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
         </a>
         <form class="search-form" id="search-form" role="search">
           <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
-          <label class="sr-only" for="search-input">搜寻视觉参考</label>
-          <input id="search-input" name="q" type="search" autocomplete="off" placeholder="搜寻风格、版面、色彩、文字或来源…" />
-          <kbd aria-label="快捷键斜线">/</kbd>
+          <label class="sr-only" for="search-input" data-i18n="search.label">搜寻视觉参考</label>
+          <input id="search-input" name="q" type="search" autocomplete="off" placeholder="搜寻风格、版面、色彩、文字或来源…" data-i18n-ph="search.placeholder" />
+          <kbd aria-label="快捷键斜线" data-i18n-aria="search.slashKbd">/</kbd>
         </form>
-        <div class="topbar-actions" aria-label="汇入与扫描">
+        <div class="topbar-actions" aria-label="汇入与扫描" data-i18n-aria="nav.topbarActions">
           <input id="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
-          <button class="button button--quiet" id="import-button" type="button" aria-label="汇入影像">
+          <button class="button button--quiet" id="import-button" type="button" aria-label="汇入影像" data-i18n-aria="nav.importAria">
             <svg class="icon" aria-hidden="true"><use href="#icon-import"></use></svg>
-            <span>汇入影像</span>
+            <span data-i18n="nav.import">汇入影像</span>
           </button>
-          <button class="button button--quiet" id="scan-button" type="button" aria-label="扫描图片资料夹">
+          <button class="button button--quiet" id="scan-button" type="button" aria-label="扫描图片资料夹" data-i18n-aria="nav.scanAria">
             <svg class="icon" aria-hidden="true"><use href="#icon-scan"></use></svg>
-            <span>扫描资料夹</span>
+            <span data-i18n="nav.scan">扫描资料夹</span>
           </button>
-          <button class="button button--primary" id="recognize-button" type="button" aria-label="将选取影像送交 Codex 辨识" disabled>
+          <button class="button button--primary" id="recognize-button" type="button" aria-label="将选取影像送交 Codex 辨识" data-i18n-aria="nav.recognizeAria" disabled>
             <svg class="icon" aria-hidden="true"><use href="#icon-check"></use></svg>
-            <span>送交 Codex</span>
+            <span data-i18n="nav.recognize">送交 Codex</span>
           </button>
+          <button class="button button--quiet lang-toggle" id="lang-toggle" type="button" aria-label="Switch to English">EN</button>
         </div>
       </header>
 
-      <aside class="index-rail" aria-label="资料库索引">
+      <aside class="index-rail" aria-label="资料库索引" data-i18n-aria="nav.databaseIndex">
         <img class="rail-tool-caddy" src="/assets/illustrations/nav-tool-caddy.png" alt="" aria-hidden="true" />
         <div class="rail-heading">
-          <span>资料库</span>
-          <span class="rail-status" id="rail-status">连线中</span>
+          <span data-i18n="nav.database">资料库</span>
+          <span class="rail-status" id="rail-status" data-i18n="nav.connecting">连线中</span>
         </div>
 
         <nav class="primary-nav" id="primary-nav">
           <button class="nav-item is-active" type="button" data-view="library" aria-current="page">
             <img class="nav-illustration" src="/assets/illustrations/nav-library.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-library"></use></svg>
-            <span>素材库</span>
+            <span data-i18n="nav.library">素材库</span>
             <output id="count-library">—</output>
           </button>
           <button class="nav-item" type="button" data-view="inbox">
             <img class="nav-illustration" src="/assets/illustrations/nav-inbox.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-inbox"></use></svg>
-            <span>待整理</span>
+            <span data-i18n="nav.inbox">待整理</span>
             <output id="count-inbox">—</output>
           </button>
           <button class="nav-item" type="button" data-view="collections">
             <img class="nav-illustration" src="/assets/illustrations/nav-collections.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-collection"></use></svg>
-            <span>收藏集</span>
+            <span data-i18n="nav.collections">收藏集</span>
             <output id="count-collections">—</output>
           </button>
           <button class="nav-item" type="button" data-view="trash">
             <img class="nav-illustration" src="/assets/illustrations/garbage%20can.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-trash"></use></svg>
-            <span>资源回收筒</span>
+            <span data-i18n="nav.trash">资源回收筒</span>
             <output id="count-trash">—</output>
           </button>
           <button class="nav-item" type="button" data-action="queue">
             <img class="nav-illustration" src="/assets/illustrations/nav-queue.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-queue"></use></svg>
-            <span>Codex 队列</span>
+            <span data-i18n="nav.queue">Codex 队列</span>
             <output id="count-queue">—</output>
           </button>
           <button class="nav-item" type="button" data-action="settings">
             <img class="nav-illustration" src="/assets/illustrations/nav-settings.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-settings"></use></svg>
-            <span>设定</span>
-            <span class="status-dot" id="settings-status-dot" aria-label="设定状态"></span>
+            <span data-i18n="nav.settings">设定</span>
+            <span class="status-dot" id="settings-status-dot" aria-label="设定状态" data-i18n-aria="nav.settingsStatus"></span>
           </button>
         </nav>
 
         <section class="collection-index" aria-labelledby="collection-index-title">
           <div class="collection-index-heading">
-            <h2 id="collection-index-title">收藏索引</h2>
-            <button class="icon-button" id="new-collection-button" type="button" aria-label="新增收藏集">
+            <h2 id="collection-index-title" data-i18n="nav.collectionIndex">收藏索引</h2>
+            <button class="icon-button" id="new-collection-button" type="button" aria-label="新增收藏集" data-i18n-aria="common.newCollection">
               <svg class="icon" aria-hidden="true"><use href="#icon-plus"></use></svg>
             </button>
           </div>
@@ -207,75 +209,75 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
       <main class="workspace" id="workspace" tabindex="-1">
         <section class="workspace-heading" aria-labelledby="view-title">
           <div>
-            <p class="view-kicker" id="view-kicker">视觉索引</p>
-            <h1 id="view-title">素材库</h1>
+            <p class="view-kicker" id="view-kicker" data-i18n="view.kickerLibrary">视觉索引</p>
+            <h1 id="view-title" data-i18n="view.library">素材库</h1>
           </div>
-          <p class="result-summary" id="result-summary" aria-live="polite">正在读取本地资料库…</p>
+          <p class="result-summary" id="result-summary" aria-live="polite" data-i18n="misc.loadingDb">正在读取本地资料库…</p>
         </section>
 
-        <section class="filter-strip" aria-label="筛选与排序">
+        <section class="filter-strip" aria-label="筛选与排序" data-i18n-aria="filter.aria">
           <label>
-            <span>领域</span>
+            <span data-i18n="filter.discipline">领域</span>
             <select id="discipline-filter">
-              <option value="">全部领域</option>
-              <option value="web">网页</option>
+              <option value="" data-i18n="filter.allDisciplines">全部领域</option>
+              <option value="web" data-i18n="filter.web">网页</option>
               <option value="ui">UI</option>
-              <option value="product">产品</option>
-              <option value="brand">品牌</option>
-              <option value="concept">概念</option>
+              <option value="product" data-i18n="filter.product">产品</option>
+              <option value="brand" data-i18n="filter.brand">品牌</option>
+              <option value="concept" data-i18n="filter.concept">概念</option>
             </select>
           </label>
           <label>
-            <span>状态</span>
+            <span data-i18n="filter.status">状态</span>
             <select id="status-filter">
-              <option value="">全部状态</option>
-              <option value="complete">分析完成</option>
-              <option value="needs_review">待确认</option>
-              <option value="queued">等待分析</option>
-              <option value="processing">分析中</option>
-              <option value="needs_setup">Codex 未就绪</option>
-              <option value="failed">失败</option>
-              <option value="stale_analysis">需更新</option>
-              <option value="missing">原档遗失</option>
+              <option value="" data-i18n="filter.allStatuses">全部状态</option>
+              <option value="complete" data-i18n="filter.complete">分析完成</option>
+              <option value="needs_review" data-i18n="filter.needsReview">待确认</option>
+              <option value="queued" data-i18n="filter.queued">等待分析</option>
+              <option value="processing" data-i18n="filter.processing">分析中</option>
+              <option value="needs_setup" data-i18n="filter.needsSetup">Codex 未就绪</option>
+              <option value="failed" data-i18n="filter.failed">失败</option>
+              <option value="stale_analysis" data-i18n="filter.stale">需更新</option>
+              <option value="missing" data-i18n="filter.missing">原档遗失</option>
             </select>
           </label>
           <label>
-            <span>星级</span>
+            <span data-i18n="filter.rating">星级</span>
             <select id="rating-filter">
-              <option value="">全部星级</option>
-              <option value="1">1★ 以上</option>
-              <option value="2">2★ 以上</option>
-              <option value="3">3★ 以上</option>
-              <option value="4">4★ 以上</option>
+              <option value="" data-i18n="filter.allRatings">全部星级</option>
+              <option value="1" data-i18n="filter.ratingAbove" data-i18n-var="1">1★ 以上</option>
+              <option value="2" data-i18n="filter.ratingAbove" data-i18n-var="2">2★ 以上</option>
+              <option value="3" data-i18n="filter.ratingAbove" data-i18n-var="3">3★ 以上</option>
+              <option value="4" data-i18n="filter.ratingAbove" data-i18n-var="4">4★ 以上</option>
               <option value="5">5★</option>
             </select>
           </label>
           <label>
-            <span>排序</span>
+            <span data-i18n="filter.sort">排序</span>
             <select id="sort-select">
-              <option value="newest">最新加入</option>
-              <option value="rating">星级</option>
-              <option value="title">名称</option>
-              <option value="status">分析状态</option>
+              <option value="newest" data-i18n="filter.newest">最新加入</option>
+              <option value="rating" data-i18n="filter.byRating">星级</option>
+              <option value="title" data-i18n="filter.byTitle">名称</option>
+              <option value="status" data-i18n="filter.byStatus">分析状态</option>
             </select>
           </label>
-          <button class="text-button" id="clear-filters-button" type="button">清除条件</button>
+          <button class="text-button" id="clear-filters-button" type="button" data-i18n="common.clearFilters">清除条件</button>
         </section>
 
-        <section class="batch-bar" id="batch-bar" hidden aria-label="批次操作">
-          <strong id="batch-count">已选 0 张</strong>
-          <span>以 Ctrl / Cmd 或每张影像右上角的选取框加入批次</span>
+        <section class="batch-bar" id="batch-bar" hidden aria-label="批次操作" data-i18n-aria="action.batchAria">
+          <strong id="batch-count" data-i18n="action.batchCount" data-i18n-var="0">已选 0 张</strong>
+          <span data-i18n="filter.batchHint">以 Ctrl / Cmd 或每张影像右上角的选取框加入批次</span>
           <small class="codex-disclosure codex-disclosure--batch">
-            送交时才会将选取影像传送至 Codex 服务；汇入本身不会上传。
+            <span data-i18n="filter.batchPrivacy">送交时才会将选取影像传送至 Codex 服务；汇入本身不会上传。</span>
           </small>
           <div>
-            <button class="text-button" id="clear-selection-button" type="button">取消选取</button>
+            <button class="text-button" id="clear-selection-button" type="button" data-i18n="common.clearSelection">取消选取</button>
             <button
               class="button button--quiet"
               id="batch-trash-button"
               type="button"
             >
-              移入回收筒
+              <span data-i18n="common.moveToTrash">移入回收筒</span>
             </button>
             <button
               class="button button--quiet"
@@ -283,7 +285,7 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
               type="button"
               hidden
             >
-              恢复
+              <span data-i18n="common.restore">恢复</span>
             </button>
             <button
               class="button button--danger"
@@ -291,15 +293,15 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
               type="button"
               hidden
             >
-              彻底删除
+              <span data-i18n="common.deleteForever">彻底删除</span>
             </button>
             <button
               class="button button--primary"
               id="batch-analyze-button"
               type="button"
-              aria-label="将批次选取影像送交 Codex 辨识"
+              aria-label="将批次选取影像送交 Codex 辨识" data-i18n-aria="action.submitAria"
             >
-              送交 Codex
+              <span data-i18n="inspector.submitCodex">送交 Codex</span>
             </button>
           </div>
         </section>
@@ -307,77 +309,77 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
         <section class="setup-notice" id="setup-notice" hidden aria-labelledby="setup-title">
           <svg class="icon" aria-hidden="true"><use href="#icon-alert"></use></svg>
           <div>
-            <h2 id="setup-title">Codex CLI / Agent 尚未就绪</h2>
+            <h2 id="setup-title" data-i18n="setup.title">Codex CLI / Agent 尚未就绪</h2>
             <p>
-              你仍可在本机汇入、整理与浏览；汇入不会上传，只有按「送交 Codex」才会传送影像。
+              <span data-i18n="setup.desc">你仍可在本机汇入、整理与浏览；汇入不会上传，只有按「送交 Codex」才会传送影像。</span>
             </p>
           </div>
-          <button class="button button--quiet" type="button" data-action="settings">开启设定</button>
+          <button class="button button--quiet" type="button" data-action="settings" data-i18n="common.openSettings">开启设定</button>
         </section>
 
         <section class="state-panel state-panel--loading" id="loading-state" aria-live="polite">
           <span class="loading-rule"></span>
-          <p>正在校准视觉索引与分析队列…</p>
+          <p data-i18n="misc.calibrating">正在校准视觉索引与分析队列…</p>
         </section>
 
         <section class="state-panel state-panel--error" id="error-state" hidden>
           <svg class="icon" aria-hidden="true"><use href="#icon-alert"></use></svg>
           <div>
-            <h2>无法读取本地资料库</h2>
-            <p id="error-message">请确认本地服务仍在执行，再重新载入。</p>
+            <h2 data-i18n="misc.dbErrorTitle">无法读取本地资料库</h2>
+            <p id="error-message" data-i18n="misc.dbErrorHint">请确认本地服务仍在执行，再重新载入。</p>
           </div>
           <button class="button button--quiet" id="retry-load-button" type="button">
             <svg class="icon" aria-hidden="true"><use href="#icon-refresh"></use></svg>
-            重新载入
+            <span data-i18n="common.reload">重新载入</span>
           </button>
         </section>
 
-        <section class="contact-sheet" id="gallery" aria-label="视觉参考影像" hidden></section>
+        <section class="contact-sheet" id="gallery" aria-label="视觉参考影像" data-i18n-aria="gallery.aria" hidden></section>
 
         <section class="collection-overview" id="collection-overview" hidden aria-labelledby="collection-title">
           <div class="collection-overview-head">
             <div>
-              <p class="view-kicker">人工策展与条件式视图</p>
-              <h2 id="collection-title">收藏集</h2>
+              <p class="view-kicker" data-i18n="view.kickerCurated">人工策展与条件式视图</p>
+              <h2 id="collection-title" data-i18n="view.collections">收藏集</h2>
             </div>
             <button class="button button--primary" type="button" data-action="new-collection">
               <svg class="icon" aria-hidden="true"><use href="#icon-plus"></use></svg>
-              新增收藏集
+              <span data-i18n="common.newCollection">新增收藏集</span>
             </button>
           </div>
           <div class="collection-table" id="collection-table"></div>
         </section>
       </main>
 
-      <aside class="inspector" id="inspector" aria-label="影像详细检视">
+      <aside class="inspector" id="inspector" aria-label="影像详细检视" data-i18n-aria="inspector.aria">
         <div class="inspector-empty" id="inspector-empty">
           <div class="ie-pin">
             <div class="ie-note">
-              <p class="ie-title">选一张影像，开始校样。</p>
-              <p class="ie-desc">你的工作台，等一张好图。</p>
+              <p class="ie-title" data-i18n="inspector.emptyTitle">选一张影像，开始校样。</p>
+              <p class="ie-desc" data-i18n="inspector.emptyDesc">你的工作台，等一张好图。</p>
             </div>
             <span class="ie-arrow" aria-hidden="true">↗</span>
-            <p class="ie-kbd"><kbd>←</kbd> <kbd>→</kbd> 切换影像 · <kbd>Esc</kbd> 关闭</p>
+            <p class="ie-kbd"><kbd>←</kbd> <kbd>→</kbd> <span data-i18n="inspector.emptyKbdSwitch">切换影像</span> · <kbd>Esc</kbd> <span data-i18n="inspector.emptyKbdClose">关闭</span></p>
           </div>
         </div>
         <div id="inspector-content" hidden></div>
       </aside>
 
-      <footer class="queue-bar" id="queue-bar" aria-label="分析队列">
+      <footer class="queue-bar" id="queue-bar" aria-label="分析队列" data-i18n-aria="queue.aria">
         <button class="queue-summary" id="queue-toggle" type="button" aria-expanded="false">
           <span class="queue-summary-label">
             <svg class="icon" aria-hidden="true"><use href="#icon-queue"></use></svg>
-            Codex 分析队列
+            <span data-i18n="queue.title">Codex 分析队列</span>
           </span>
           <strong id="queue-active-count">00</strong>
-          <span id="queue-summary-text">尚无工作</span>
+          <span id="queue-summary-text" data-i18n="queue.empty">尚无工作</span>
           <svg class="icon queue-chevron" aria-hidden="true"><use href="#icon-chevron"></use></svg>
         </button>
 
         <div class="queue-track" id="queue-track" aria-live="polite"></div>
         <div class="queue-actions">
           <button class="text-button" id="retry-needs-setup-button" type="button" hidden>
-            完成设定后重试
+            <span data-i18n="queue.retrySetup">完成设定后重试</span>
           </button>
         </div>
 
@@ -388,20 +390,20 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
       <form id="collection-form">
         <div class="dialog-heading">
           <div>
-            <p class="view-kicker">策展</p>
-            <h2 id="collection-dialog-title">新增收藏集</h2>
+            <p class="view-kicker" data-i18n="view.kickerCurate">策展</p>
+            <h2 id="collection-dialog-title" data-i18n="common.newCollection">新增收藏集</h2>
           </div>
-          <button class="icon-button" type="button" data-close-dialog aria-label="关闭">
+          <button class="icon-button" type="button" data-close-dialog aria-label="关闭" data-i18n-aria="common.close">
             <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
           </button>
         </div>
         <label class="field">
-          <span>收藏集名称</span>
+          <span data-i18n="common.collectionName">收藏集名称</span>
           <input id="collection-name" name="name" required maxlength="80" autocomplete="off" />
         </label>
         <div class="dialog-actions">
-          <button class="button button--quiet" type="button" data-close-dialog>取消</button>
-          <button class="button button--primary" type="submit">建立收藏集</button>
+          <button class="button button--quiet" type="button" data-close-dialog data-i18n="common.cancel">取消</button>
+          <button class="button button--primary" type="submit" data-i18n="common.createCollection">建立收藏集</button>
         </div>
       </form>
     </dialog>
@@ -410,55 +412,55 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
       <form id="settings-form">
         <div class="dialog-heading">
           <div>
-            <p class="view-kicker">本地分析环境</p>
-            <h2 id="settings-dialog-title">设定</h2>
+            <p class="view-kicker" data-i18n="view.kickerSetup">本地分析环境</p>
+            <h2 id="settings-dialog-title" data-i18n="nav.settings">设定</h2>
           </div>
-          <button class="icon-button" type="button" data-close-dialog aria-label="关闭">
+          <button class="icon-button" type="button" data-close-dialog aria-label="关闭" data-i18n-aria="common.close">
             <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
           </button>
         </div>
 
         <div class="settings-grid">
           <div class="field">
-            <span>监看资料夹</span>
-            <output class="path-readout" id="setting-inbox-path">读取中…</output>
-            <small>将影像放入这个资料夹，再按「启动辨识」。</small>
+            <span data-i18n="setup.watchFolder">监看资料夹</span>
+            <output class="path-readout" id="setting-inbox-path" data-i18n="common.loading">读取中…</output>
+            <small data-i18n="setup.watchHint">将影像放入这个资料夹，再按「启动辨识」。</small>
           </div>
           <label class="field">
-            <span>Codex 模型</span>
+            <span data-i18n="setup.model">Codex 模型</span>
             <input
               id="setting-codex-model"
               name="codexModel"
               maxlength="120"
-              placeholder="留空以使用已登入的预设模型"
+              placeholder="留空以使用已登入的预设模型" data-i18n-ph="setup.modelPlaceholder"
               autocomplete="off"
             />
-            <small>只接受 Codex CLI / Agent 可识别的模型名称。</small>
+            <small data-i18n="setup.modelHint">只接受 Codex CLI / Agent 可识别的模型名称。</small>
           </label>
         </div>
 
         <dl class="codex-ledger" id="provider-ledger">
           <div>
             <dt>Codex CLI / Agent</dt>
-            <dd id="codex-readiness">检查中</dd>
+            <dd id="codex-readiness" data-i18n="common.checking">检查中</dd>
           </div>
           <div>
-            <dt>执行模式</dt>
-            <dd id="codex-execution-mode">本地 Agent</dd>
+            <dt data-i18n="setup.execMode">执行模式</dt>
+            <dd id="codex-execution-mode" data-i18n="common.localAgent">本地 Agent</dd>
           </div>
           <div>
-            <dt>同时工作数</dt>
+            <dt data-i18n="setup.concurrency">同时工作数</dt>
             <dd>1</dd>
           </div>
           <div>
-            <dt>Prompt 版本</dt>
+            <dt data-i18n="setup.promptVersion">Prompt 版本</dt>
             <dd id="codex-prompt-version">—</dd>
           </div>
         </dl>
 
         <div class="dialog-actions">
-          <button class="button button--quiet" type="button" data-close-dialog>取消</button>
-          <button class="button button--primary" type="submit">储存设定</button>
+          <button class="button button--quiet" type="button" data-close-dialog data-i18n="common.cancel">取消</button>
+          <button class="button button--primary" type="submit" data-i18n="common.saveSettings">储存设定</button>
         </div>
       </form>
     </dialog>
