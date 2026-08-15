@@ -7,8 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Winston774/Winston-10xAI-Toolspack.git",
-    "directory": "weeks/2026/2026-w31-stylebase-design-inspiration-library/completed/stylebase-design-inspiration-library"
+    "url": "git+https://github.com/w3118597378-max/stylebase-design-inspiration-library.git"
   },
   "scripts": {
     "dev": "node --watch --env-file-if-exists=.env server.mjs",
