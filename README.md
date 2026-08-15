@@ -1,5 +1,7 @@
 # Stylebase ｜ 設計靈感資料庫
 
+<img align="right" height="96px" src="public/assets/illustrations/648d8aed-99e7-4b23-bb2c-62364faeee0a.png" alt="Stylebase 吉祥物:戴著藍色帽子的星星" />
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D24-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)
