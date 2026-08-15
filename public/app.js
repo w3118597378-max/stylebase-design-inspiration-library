@@ -279,6 +279,8 @@ function normalizeAsset(raw) {
     rightsNote: asset.rightsNote || asset.rights_note || "",
     notes: asset.notes || "",
     favorite: Boolean(asset.favorite),
+    rating: finiteNumber(asset.rating, 0),
+    deletedAt: asset.deletedAt || asset.deleted_at || "",
     collectionIds: asArray(
       asset.collectionIds || asset.collection_ids || asset.collections,
     ).map((item) => String(item?.id ?? item)),
@@ -2344,6 +2346,71 @@ function isTypingTarget(target) {
     target?.isContentEditable
   );
 }
+
+function hasDraggedFiles(event) {
+  return [...(event.dataTransfer?.types || [])].includes("Files");
+}
+
+let dragDepth = 0;
+
+window.addEventListener("dragenter", (event) => {
+  if (!hasDraggedFiles(event)) return;
+  dragDepth += 1;
+  document.body.classList.add("is-dragging");
+});
+
+window.addEventListener("dragleave", (event) => {
+  if (!hasDraggedFiles(event)) return;
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (dragDepth === 0) document.body.classList.remove("is-dragging");
+});
+
+window.addEventListener("dragover", (event) => {
+  if (!hasDraggedFiles(event)) return;
+  event.preventDefault();
+});
+
+window.addEventListener("drop", (event) => {
+  if (!hasDraggedFiles(event)) return;
+  event.preventDefault();
+  dragDepth = 0;
+  document.body.classList.remove("is-dragging");
+  const files = [...(event.dataTransfer?.files || [])];
+  if (files.length) importFiles(files);
+});
+
+function pasteImageFileName(file, stamp, index) {
+  if (file.name) return file;
+  const extension =
+    file.type === "image/jpeg"
+      ? ".jpg"
+      : file.type === "image/webp"
+        ? ".webp"
+        : file.type === "image/gif"
+          ? ".gif"
+          : ".png";
+  const suffix = index > 0 ? `-${index + 1}` : "";
+  return new File([file], `paste-${stamp}${suffix}${extension}`, {
+    type: file.type,
+  });
+}
+
+document.addEventListener("paste", (event) => {
+  if (isTypingTarget(event.target)) return;
+  const items = [...(event.clipboardData?.items || [])];
+  const images = items
+    .filter((item) => item.type.startsWith("image/"))
+    .map((item) => item.getAsFile())
+    .filter(Boolean);
+  if (!images.length) return;
+  event.preventDefault();
+  const now = new Date();
+  const pad = (value) => String(value).padStart(2, "0");
+  const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(
+    now.getDate(),
+  )}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  importFiles(images.map((file, index) => pasteImageFileName(file, stamp, index)));
+});
 
 elements.searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
