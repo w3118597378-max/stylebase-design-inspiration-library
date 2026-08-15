@@ -6,6 +6,8 @@ library/inbox/*
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+.impeccable/
+output/
 node_modules/
 coverage/
 .vscode/

@@ -110,56 +110,36 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
           </span>
           <span class="brand-lockup">
             <img class="brand-mascot" src="/assets/illustrations/648d8aed-99e7-4b23-bb2c-62364faeee0a.png" alt="" aria-hidden="true" />
-            <span class="brand-plaque"><span class="brand-name">STYLEBASE</span></span>
+            <span class="brand-plaque">
+              <span class="brand-anim" aria-hidden="true">
+                <span class="brand-anim-layer brand-anim-layer--red">
+                  <span class="brand-char">S</span><span class="brand-char">T</span><span class="brand-char">Y</span><span class="brand-char">L</span><span class="brand-char">E</span><span class="brand-char">B</span><span class="brand-char">A</span><span class="brand-char">S</span><span class="brand-char">E</span>
+                </span>
+                <span class="brand-anim-layer brand-anim-layer--white">
+                  <span class="brand-char">S</span><span class="brand-char">T</span><span class="brand-char">Y</span><span class="brand-char">L</span><span class="brand-char">E</span><span class="brand-char">B</span><span class="brand-char">A</span><span class="brand-char">S</span><span class="brand-char">E</span>
+                </span>
+              </span>
+              <span class="sr-only">STYLEBASE</span>
+            </span>
           </span>
         </a>
-
         <form class="search-form" id="search-form" role="search">
           <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
           <label class="sr-only" for="search-input">搜寻视觉参考</label>
-          <input
-            id="search-input"
-            name="q"
-            type="search"
-            autocomplete="off"
-            placeholder="搜寻风格、版面、色彩、文字或来源…"
-          />
+          <input id="search-input" name="q" type="search" autocomplete="off" placeholder="搜寻风格、版面、色彩、文字或来源…" />
           <kbd aria-label="快捷键斜线">/</kbd>
         </form>
-
         <div class="topbar-actions" aria-label="汇入与扫描">
-          <input
-            id="file-input"
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            multiple
-            hidden
-          />
-          <button
-            class="button button--quiet"
-            id="import-button"
-            type="button"
-            aria-label="汇入影像"
-          >
+          <input id="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
+          <button class="button button--quiet" id="import-button" type="button" aria-label="汇入影像">
             <svg class="icon" aria-hidden="true"><use href="#icon-import"></use></svg>
             <span>汇入影像</span>
           </button>
-          <button
-            class="button button--quiet"
-            id="scan-button"
-            type="button"
-            aria-label="扫描图片资料夹"
-          >
+          <button class="button button--quiet" id="scan-button" type="button" aria-label="扫描图片资料夹">
             <svg class="icon" aria-hidden="true"><use href="#icon-scan"></use></svg>
             <span>扫描资料夹</span>
           </button>
-          <button
-            class="button button--primary"
-            id="recognize-button"
-            type="button"
-            aria-label="将选取影像送交 Codex 辨识"
-            disabled
-          >
+          <button class="button button--primary" id="recognize-button" type="button" aria-label="将选取影像送交 Codex 辨识" disabled>
             <svg class="icon" aria-hidden="true"><use href="#icon-check"></use></svg>
             <span>送交 Codex</span>
           </button>
@@ -193,6 +173,7 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
             <output id="count-collections">—</output>
           </button>
           <button class="nav-item" type="button" data-view="trash">
+            <img class="nav-illustration" src="/assets/illustrations/garbage%20can.png" alt="" aria-hidden="true" />
             <svg class="icon" aria-hidden="true"><use href="#icon-trash"></use></svg>
             <span>资源回收筒</span>
             <output id="count-trash">—</output>
@@ -486,8 +467,5 @@ FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" app
 
     <script type="module" src="/app.js"></script>
 
-  <!-- impeccable-live-start -->
-<script src="http://localhost:8400/live.js?token=e8a7b5c2-6501-49bb-af55-75e547f23489"></script>
-<!-- impeccable-live-end -->
-</body>
+  </body>
 </html>

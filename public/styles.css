@@ -285,10 +285,7 @@ svg {
   grid-area: 1 / 1 / span 1 / span 2;
   justify-self: start;
   margin-left: 94px;
-  padding: 8px 11px 8px 21px;
-  color: #fff;
-  background: var(--graphite);
-  box-shadow: 1px 1px 0 rgb(25 23 21 / 18%);
+  line-height: 1;
   transform: rotate(-1deg);
 }
 
@@ -299,6 +296,95 @@ svg {
   letter-spacing: 0.025em;
   line-height: 1;
   white-space: nowrap;
+}
+
+/* ── Brand anime double-layer jitter (STYLEBASE) ─────────────── */
+@font-face {
+  font-family: 'Londrina Solid';
+  src: url('/assets/fonts/londrina-solid-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Londrina Sketch';
+  src: url('/assets/fonts/londrina-sketch-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+.brand-anim {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+.brand-anim-layer {
+  display: inline-flex;
+  white-space: nowrap;
+  line-height: 1;
+}
+.brand-anim-layer--red {
+  position: relative; /* in flow: defines the plaque width */
+  z-index: 2;
+  color: var(--red);
+  font-family: 'Londrina Solid', 'Microsoft YaHei UI', sans-serif;
+  font-size: 30px;
+}
+.brand-anim-layer--white {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  color: var(--graphite);
+  font-family: 'Londrina Sketch', 'Microsoft YaHei UI', sans-serif;
+  font-size: 30px;
+  transform: translate(2px, 2px);
+}
+.brand-char {
+  display: inline-block;
+  transform-origin: 50% 50%;
+  animation:
+    brand-skew 2000ms steps(1, end) infinite,
+    brand-scale 1000ms steps(1, end) infinite;
+}
+
+/* Per-character stagger, same phase logic as the reference component:
+   (n+1) % 7 → -1000ms, % 5 → -500ms, % 3 → -250ms; red layer base 200ms, white 0. */
+.brand-anim-layer--red .brand-char:nth-child(3),
+.brand-anim-layer--red .brand-char:nth-child(6),
+.brand-anim-layer--red .brand-char:nth-child(9) { animation-delay: -50ms, -50ms; }
+.brand-anim-layer--red .brand-char:nth-child(5) { animation-delay: -300ms, -300ms; }
+.brand-anim-layer--red .brand-char:nth-child(7) { animation-delay: -800ms, -800ms; }
+
+.brand-anim-layer--white .brand-char:nth-child(3),
+.brand-anim-layer--white .brand-char:nth-child(6),
+.brand-anim-layer--white .brand-char:nth-child(9) { animation-delay: -250ms, -250ms; }
+.brand-anim-layer--white .brand-char:nth-child(5) { animation-delay: -500ms, -500ms; }
+.brand-anim-layer--white .brand-char:nth-child(7) { animation-delay: -1000ms, -1000ms; }
+
+@keyframes brand-skew {
+  0%   { transform: skew(6deg, 0deg); }
+  20%  { transform: skew(-4deg, 0deg); }
+  40%  { transform: skew(8deg, 0deg); }
+  60%  { transform: skew(-6deg, 0deg); }
+  80%  { transform: skew(2deg, 0deg); }
+  100% { transform: skew(-10deg, 0deg); }
+}
+@keyframes brand-scale {
+  0%   { scale: 1; }
+  20%  { scale: 1.1; }
+  40%  { scale: 0.9; }
+  60%  { scale: 1.05; }
+  80%  { scale: 0.9; }
+  100% { scale: 1.2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-char {
+    animation: none;
+  }
+  .brand-anim-layer--white {
+    transform: none;
+  }
 }
 
 .search-form {
@@ -346,6 +432,38 @@ svg {
   align-items: center;
   gap: 8px;
   padding: 0 14px 0 8px;
+}
+
+/* 顶栏 V3 图标优先（impeccable live accept 落地，density 1.15 烘焙） */
+.topbar {
+  grid-template-columns: var(--topbar-brand-width) minmax(300px, 1fr) auto;
+  padding-right: 12px;
+}
+.topbar .search-form {
+  justify-self: stretch;
+  margin-inline: 20px;
+  width: auto;
+  max-width: 760px;
+}
+.topbar .topbar-actions {
+  gap: 8px;
+}
+.topbar .button {
+  min-height: 44px;
+  padding: 8px 14px;
+}
+.topbar .button--quiet {
+  width: 44px;
+  padding: 0;
+  font-size: 0;
+  gap: 0;
+}
+.topbar .button--quiet .icon {
+  width: 17px;
+  height: 17px;
+}
+.topbar .button--primary {
+  box-shadow: 2.5px 2.5px 0 var(--graphite);
 }
 
 .button,
@@ -464,6 +582,16 @@ svg {
 }
 .nav-illustration { width: 34px; height: 34px; object-fit: contain; }
 .nav-item > .icon { display: none; }
+
+.nav-item[data-view="trash"] {
+  grid-template-columns: 39px 1fr auto;
+}
+.nav-item[data-view="trash"] .nav-illustration {
+  width: 39.1px;
+  height: 39.1px;
+  transform: rotate(-3deg);
+  margin-left: -3px;
+}
 
 .nav-item:hover {
   background: var(--yellow-soft);
@@ -800,17 +928,27 @@ svg {
 .asset-card.is-selected {
   outline: 3px solid var(--blue);
   outline-offset: 5px;
+  animation: asset-select-scan 600ms ease-out both;
 }
 
 .asset-card.is-selected::before {
   position: absolute;
   z-index: 7;
-  inset: -8px -10px -9px -7px;
+  inset: 0;
   border: 2px solid var(--blue);
-  border-radius: 51% 47% 50% 48%;
+  border-radius: 8px 11px 9px 7px;
   content: "";
   pointer-events: none;
-  transform: rotate(-2deg);
+  animation: asset-select-edge 450ms ease-out both;
+}
+
+@keyframes asset-select-scan {
+  0%   { transform: scale(0.96); filter: saturate(0.4); }
+  100% { transform: scale(1); filter: saturate(1); }
+}
+@keyframes asset-select-edge {
+  0%   { border-width: 0; }
+  100% { border-width: 2px; }
 }
 
 .asset-card.is-batch-selected:not(.is-selected) {
@@ -2323,11 +2461,11 @@ svg {
 
   .brand-plaque {
     margin-left: 74px;
-    padding: 7px 9px 7px 18px;
   }
 
-  .brand-name {
-    font-size: 16px;
+  .brand-anim-layer--red,
+  .brand-anim-layer--white {
+    font-size: 24px;
   }
 
   .contact-sheet {
@@ -2575,11 +2713,11 @@ svg {
 
   .brand-plaque {
     margin-left: 58px;
-    padding: 6px 7px 6px 15px;
   }
 
-  .brand-name {
-    font-size: 13px;
+  .brand-anim-layer--red,
+  .brand-anim-layer--white {
+    font-size: 18px;
   }
 
   .search-form kbd {
