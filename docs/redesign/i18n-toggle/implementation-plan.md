@@ -112,6 +112,7 @@ I18N = {
 - i18n 切換後必須重渲染：app.js 的 `renderAll` 在 module 作用域，須 `window.renderAll = renderAll` 暴露
 - 自訂事件 `stylebase:langchange` 的 dispatch（document）與監聽（document）必須同目標，CustomEvent 預設不冒泡
 - zh/en 兩側詞典要同步補鍵（首輪只補了 zh 側 nav 組導致英文態回落中文）
+- **頂欄按鈕文字被 `font-size:0` 吃掉（2026-08-16 用户反馈「按钮没显示字体」）**：頂欄 V3 把 `.topbar .button--quiet` 收成 44px 圖標方塊（`font-size:0`），語言按鈕復用該類後「EN/中」文字不可見（功能正常但視覺為空按鈕）。修：`.topbar .lang-toggle` 覆蓋 `font-size:13px; font-weight:700; width:auto; padding:0 12px`。凡頂欄新增帶文字按鈕都必須覆蓋 font-size，不能只複用 button--quiet。
 
 ## 風險表
 

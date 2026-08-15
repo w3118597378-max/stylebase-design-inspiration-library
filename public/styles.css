@@ -463,6 +463,14 @@ svg {
   width: 17px;
   height: 17px;
 }
+.topbar .lang-toggle {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  width: auto;
+  padding: 0 12px;
+  gap: 0;
+}
 .topbar .button--primary {
   box-shadow: 2px 3px 0 rgb(25 23 21 / 18%);
 }
