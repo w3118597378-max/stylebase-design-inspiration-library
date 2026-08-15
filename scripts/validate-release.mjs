@@ -51,6 +51,7 @@ const requiredFiles = [
   "CONTRIBUTING.md",
   "LICENSE",
   "README.md",
+  "README.zh-CN.md",
   "SECURITY.md",
   "docs/architecture.md",
   "docs/privacy-and-content-rights.md",
@@ -114,8 +115,12 @@ check(license.startsWith("MIT License"), "LICENSE 不是 MIT License");
 
 const readme = await readFile(path.join(root, "README.md"), "utf8");
 check(readme.includes("127.0.0.1:4177"), "README 缺少本機網址");
-check(readme.includes("送交 Codex"), "README 缺少明確 AI 觸發說明");
+check(readme.includes("Send to Codex"), "README 缺少明確 AI 觸發說明");
 check(readme.includes("MIT License"), "README 缺少授權說明");
+const readmeZh = await readFile(path.join(root, "README.zh-CN.md"), "utf8");
+check(readmeZh.includes("127.0.0.1:4177"), "README.zh-CN 缺少本機網址");
+check(readmeZh.includes("送交 Codex"), "README.zh-CN 缺少明確 AI 觸發說明");
+check(readmeZh.includes("MIT License"), "README.zh-CN 缺少授權說明");
 
 const textExtensions = new Set([
   ".css",
