@@ -26,7 +26,12 @@ async function walk(directory, relative = "") {
   const files = [];
 
   for (const entry of entries) {
-    if (entry.name === ".git" || entry.name === "node_modules") continue;
+    if (
+      entry.name === ".git" ||
+      entry.name === "node_modules" ||
+      entry.name === ".worktrees"
+    )
+      continue;
     const relativePath = path.posix.join(relative, entry.name);
     const absolutePath = path.join(directory, entry.name);
     if (entry.isDirectory()) {
@@ -51,9 +56,7 @@ const requiredFiles = [
   "docs/privacy-and-content-rights.md",
   "docs/troubleshooting.md",
   "docs/verification.md",
-  "lesson.md",
   "library/inbox/.gitkeep",
-  "metadata.yml",
   "package.json",
   "public/app.js",
   "scripts/smoke-test.mjs",
@@ -99,7 +102,7 @@ const packageJson = JSON.parse(
   await readFile(path.join(root, "package.json"), "utf8"),
 );
 check(packageJson.name === "stylebase-design-inspiration-library", "package 名稱錯誤");
-check(packageJson.version === "1.0.0", "package 版本必須是 1.0.0");
+check(packageJson.version === "1.2.0", "package 版本必須是 1.2.0");
 check(packageJson.license === "MIT", "package license 必須是 MIT");
 check(
   packageJson.engines?.node === ">=24.0.0",
@@ -108,11 +111,6 @@ check(
 
 const license = await readFile(path.join(root, "LICENSE"), "utf8");
 check(license.startsWith("MIT License"), "LICENSE 不是 MIT License");
-
-const metadata = await readFile(path.join(root, "metadata.yml"), "utf8");
-check(/^id: 2026-w31$/m.test(metadata), "metadata 缺少 2026-w31");
-check(/^version: 1\.0\.0$/m.test(metadata), "metadata 版本錯誤");
-check(/^status: stable$/m.test(metadata), "metadata 狀態必須是 stable");
 
 const readme = await readFile(path.join(root, "README.md"), "utf8");
 check(readme.includes("127.0.0.1:4177"), "README 缺少本機網址");

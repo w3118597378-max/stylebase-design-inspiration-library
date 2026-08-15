@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="630" viewBox="0 0 1440 630">
-  <style>.t{font-family:'Microsoft YaHei UI','Microsoft YaHei',sans-serif;fill:#191715}.h{font-size:24px;font-weight:800}.s{font-size:13px;fill:#615B52}.tag{font-size:12px;font-weight:800}</style>
-  <rect width="1440" height="630" fill="#ECE8DD"/><text x="40" y="48" class="t h">右侧检查器 V3：前后对比</text><text x="40" y="76" class="t s">真实基线（左） · 设计稿（右）</text>
-  <rect x="40" y="105" width="650" height="470" rx="12" fill="#FFFDF6" stroke="#191715" stroke-width="2"/><image href="../../../output/playwright/inspector-baseline-desktop-1440.png" x="52" y="117" width="626" height="446" preserveAspectRatio="xMidYMin slice"/><rect x="60" y="122" width="68" height="26" rx="4" fill="#FFF1A5" stroke="#191715"/><text x="73" y="140" class="t tag">当前</text>
-  <rect x="750" y="105" width="650" height="470" rx="12" fill="#FFFDF6" stroke="#191715" stroke-width="2"/><image href="desktop-design.svg" x="762" y="117" width="626" height="446" preserveAspectRatio="xMidYMin slice"/><rect x="770" y="122" width="86" height="26" rx="4" fill="#DDE9FF" stroke="#191715"/><text x="783" y="140" class="t tag">V3 目标</text>
-  <g class="t s"><text x="48" y="610">普通分段白栏：装订弱、索引像按钮、长内容节奏一致</text><text x="758" y="610">硬纸板＋纸页＋活页环＋四色索引：内容仍是主角</text></g>
-</svg>
