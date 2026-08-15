@@ -1749,7 +1749,6 @@ function renderQueue() {
       const progressAria = progress.indeterminate
         ? `role="progressbar" aria-label="${escapeHTML(stage)}" aria-valuemin="0" aria-valuemax="100"`
         : `role="progressbar" aria-label="${escapeHTML(stage)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress.value}"`;
-      const dateValue = job.completedAt || job.createdAt;
       return `
         <article
           class="queue-job${entering ? " is-kind-enter" : ""}"
@@ -1771,20 +1770,15 @@ function renderQueue() {
                 progress.indeterminate ? "" : `${progress.value}%`
               }</span>
             </div>
-            <div class="job-progress ${progressClass}" ${progressAria}>
-              <span data-progress="${progress.value === null ? "" : progress.value}"></span>
-            </div>
-            ${
-              job.error
-                ? `<p class="job-error">${escapeHTML(job.error)}</p>`
-                : ""
-            }
-            ${
-              dateValue
-                ? `<time class="queue-job-date">${escapeHTML(formatDate(dateValue))}</time>`
-                : ""
-            }
           </div>
+          <div class="job-progress ${progressClass}" ${progressAria}>
+            <span data-progress="${progress.value === null ? "" : progress.value}"></span>
+          </div>
+          ${
+            job.error
+              ? `<p class="job-error">${escapeHTML(job.error)}</p>`
+              : ""
+          }
           <img class="queue-role" src="${role}" alt="" aria-hidden="true" />
         </article>`;
     }),

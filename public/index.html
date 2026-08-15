@@ -1,10 +1,10 @@
 <!doctype html>
 <!--
-THESIS: Stylebase is a working sketchbook where collected images become searchable design evidence; it refuses the generic AI dashboard.
-OWN-WORLD: Bright paper, confident ink lines, cobalt action marks, sunflower navigation stickers, a blue one-eyed scout, and only small hand-drawn accents.
-STORY: Import or scan references, filter the image-led sheet, inspect Visual DNA and provenance, then send intentional work to Codex.
-FIRST VIEWPORT: A window-like toolbar sits above an illustrated tool-caddy rail, an asymmetric contact sheet fills the center, a binder inspector anchors right, and a character-led queue runs below.
-FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation handoff.
+THESIS: Stylebase turns collected images into searchable design evidence on a bright paper workbench; the inspector is a designer's light table where the reference image, not chrome, is the subject under inspection.
+OWN-WORLD: A glowing warm-white glass light table framed by a deep charcoal workbench edge; the selected image sits on the glass like a backlit transparency; four section tools rest on the table rim (yellow sticky label, purple swatch card, blue drafting ruler, green archive folder) and the current one is circled by a pencil-drawn loupe ring. Ink outlines, crayon accents, and the paper world stay intact around it.
+STORY: Import or scan references, filter the image-led sheet, then place one image on the light table and read its Visual DNA, palette, prompt kit, and provenance before sending intentional work to Codex.
+FIRST VIEWPORT: A window-like toolbar above an illustrated tool-caddy rail, an asymmetric contact sheet filling the center, and a light-table inspector anchoring right: backlit transparency up top, section tools on the rim, handwritten analysis notes below. A character-led queue runs below the desk.
+FORM: Light table + loupe (看片台·放大镜), comp A "hero transparency" approved 2026-08-14; the loupe ring marks the current section, the image is the hero.
 -->
 <html lang="zh-Hans">
   <head>
@@ -203,10 +203,6 @@ FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation 
           <div id="collection-nav" class="collection-links"></div>
         </section>
 
-        <p class="rail-footnote">
-          灵感，<br />
-          有迹可循。
-        </p>
       </aside>
 
       <main class="workspace" id="workspace" tabindex="-1">
@@ -321,10 +317,14 @@ FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation 
 
       <aside class="inspector" id="inspector" aria-label="影像详细检视">
         <div class="inspector-empty" id="inspector-empty">
-          <img class="inspector-mascot" src="/assets/illustrations/mascot-idle.png" alt="" aria-hidden="true" />
-          <span class="registration-target" aria-hidden="true"></span>
-          <p>选取影像以开启校样检视</p>
-          <small>方向键切换影像 · Esc 关闭</small>
+          <div class="ie-pin">
+            <div class="ie-note">
+              <p class="ie-title">选一张影像，开始校样。</p>
+              <p class="ie-desc">你的工作台，等一张好图。</p>
+            </div>
+            <span class="ie-arrow" aria-hidden="true">↗</span>
+            <p class="ie-kbd"><kbd>←</kbd> <kbd>→</kbd> 切换影像 · <kbd>Esc</kbd> 关闭</p>
+          </div>
         </div>
         <div id="inspector-content" hidden></div>
       </aside>
@@ -339,12 +339,14 @@ FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation 
           <span id="queue-summary-text">尚无工作</span>
           <svg class="icon queue-chevron" aria-hidden="true"><use href="#icon-chevron"></use></svg>
         </button>
+
         <div class="queue-track" id="queue-track" aria-live="polite"></div>
         <div class="queue-actions">
           <button class="text-button" id="retry-needs-setup-button" type="button" hidden>
             完成设定后重试
           </button>
         </div>
+
       </footer>
     </div>
 
@@ -430,5 +432,9 @@ FORM: Playful hand-drawn operating desk from the approved A-layout/B-navigation 
     <div class="live-region" id="live-region" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <script type="module" src="/app.js"></script>
-  </body>
+
+  <!-- impeccable-live-start -->
+<script src="http://localhost:8400/live.js?token=e8a7b5c2-6501-49bb-af55-75e547f23489"></script>
+<!-- impeccable-live-end -->
+</body>
 </html>

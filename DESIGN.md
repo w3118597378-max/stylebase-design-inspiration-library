@@ -43,7 +43,7 @@ Use the system Chinese sans-serif stack for all task content. The compact black 
 
 ## Layout
 
-Desktop is a three-column operating desk: illustrated rail, dense five-column asset sheet, and binder-like inspector, with a persistent horizontal Codex queue below. At 920px, the navigation becomes a horizontal strip and the inspector becomes a full-screen layer. At 640px, the asset sheet becomes two columns.
+Desktop is a three-column operating desk: illustrated rail, dense five-column asset sheet, and a paper-sheet inspector anchoring right, with a persistent horizontal Codex queue below. At 920px, the navigation becomes a horizontal strip and the inspector becomes a full-screen layer. At 640px, the asset sheet becomes two columns.
 
 ## Elevation & Depth
 
@@ -55,7 +55,7 @@ Controls are near-square with lightly irregular 4–13px corners. Active navigat
 
 ## Components
 
-Navigation uses decorative PNG illustrations with empty alt text. The inspector has a repeating binder-ring edge. Queue cards always retain thumbnail, written phase, percentage/progress bar, error detail when present, and a distinct character for waiting, analysing, completed, or failed work.
+Navigation uses decorative PNG illustrations with empty alt text. The inspector is a paper sheet on a light desk: a near-white sheet with a fine ink outline and a hairline shadow sits on a paper-raised surface, the selected image reads like a transparency on it, four section tools rest above the sheet (yellow sticky label for overview, purple swatch card for visual DNA, blue drafting ruler for implementation, green archive folder for management). Queue cards always retain thumbnail, written phase, percentage/progress bar, error detail when present, and a distinct character for waiting, analysing, completed, or failed work.
 
 ## Do's and Don'ts
 

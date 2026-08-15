@@ -16,6 +16,14 @@
   --amber: #9d6900;
   --yellow: #ffd51d;
   --yellow-soft: #fff0a6;
+  --table-rim: #4a3f30;
+  --table-rim-deep: #2e2619;
+  --table-glass: #fffdf6;
+  --table-glow: rgba(255, 236, 170, 0.5);
+  --tool-overview: #ffd51d;
+  --tool-visual: #a98bff;
+  --tool-implementation: #7ca8ff;
+  --tool-management: #82be94;
   --queue-height: 144px;
   --rail-width: 184px;
   --topbar-brand-width: 342px;
@@ -1091,11 +1099,40 @@ svg {
   min-height: 0;
   overflow-y: auto;
   position: relative;
-  box-shadow: inset 3px 0 var(--graphite);
+  /* 浅纸台面：不抢阅读，只有一条淡墨描边 + 极浅投影暗示台沿 */
   background: var(--paper-raised);
+  border-left: 2px solid var(--graphite);
+  padding: 10px 8px 12px 10px;
+  box-shadow: inset 0 0 0 1px var(--rule);
   scrollbar-color: var(--rule-strong) var(--paper-raised);
 }
-.inspector::before { position: absolute; z-index: 9; top: 8px; bottom: 8px; left: -14px; width: 22px; background-color: var(--paper); background-image: url("/assets/illustrations/binder-rings.png"); background-position: center top; background-size: 22px 25px; background-repeat: repeat-y; content: ""; pointer-events: none; }
+/* 内容区：白纸面，细墨线框 + 顶部高光 */
+.inspector-content,
+.inspector-empty {
+  position: relative;
+  min-height: 100%;
+  border: 2px solid var(--graphite);
+  border-radius: 8px 10px 8px 9px;
+  background: linear-gradient(180deg, #fffefa 0%, var(--paper) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 4px 14px rgba(25, 23, 21, 0.06);
+}
+.inspector-content::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 4px 4px auto;
+  height: 10px;
+  border-radius: 6px 6px 4px 4px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85) 30%, rgba(255, 255, 255, 0.35) 70%, transparent);
+  pointer-events: none;
+}
+.inspector-content > *,
+.inspector-empty > * {
+  position: relative;
+  z-index: 1;
+}
 
 .inspector-empty {
   display: grid;
@@ -1107,8 +1144,6 @@ svg {
   color: var(--muted);
   text-align: center;
 }
-.inspector-mascot { width: 104px; margin-bottom: 7px; }
-
 .registration-target {
   position: relative;
   display: block;
@@ -1116,6 +1151,77 @@ svg {
   height: 34px;
   border: 1px solid var(--rule-strong);
   border-radius: 50%;
+}
+
+/* 空状态「工作台拼贴」（accept e03c9806 V2, note: tilt）—— 便签纸 +
+   涂鸦箭头 + 键盘提示，纸面身份：墨线描边、手绘圆角、2px 硬阴影 */
+.ie-pin {
+  position: relative;
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  padding: 26px;
+  text-align: center;
+  color: var(--muted);
+}
+.ie-pin .ie-note {
+  position: relative;
+  max-width: 220px;
+  padding: 18px 16px 14px;
+  border: 2px solid var(--graphite);
+  border-radius: 10px 13px 9px 12px;
+  background: var(--paper-raised);
+  box-shadow: 3px 4px 0 rgb(25 23 21 / 16%);
+  transform: rotate(2deg);
+}
+.ie-pin .ie-note::before {
+  content: "♪";
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  color: var(--blue);
+  background: var(--paper-raised);
+  border: 2px solid var(--graphite);
+  border-radius: 50%;
+}
+.ie-pin .ie-note .ie-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.3;
+  color: var(--graphite);
+}
+.ie-pin .ie-note .ie-desc {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.ie-pin .ie-arrow {
+  font-size: 20px;
+  line-height: 1;
+  transform: rotate(12deg);
+  color: var(--graphite);
+}
+.ie-pin .ie-kbd {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+.ie-pin .ie-kbd kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 10px;
+  background: var(--paper-raised);
 }
 
 .registration-target::before,
@@ -1147,8 +1253,8 @@ svg {
   justify-content: space-between;
   min-height: 54px;
   border-bottom: 2px solid var(--graphite);
-  padding: 8px 10px 8px 14px;
-  background: var(--paper-raised);
+  padding: 8px 10px 8px 16px;
+  background: linear-gradient(180deg, rgba(255, 253, 246, 0.94), rgba(255, 251, 240, 0.9));
 }
 
 .inspector-title {
@@ -1172,8 +1278,27 @@ svg {
   position: relative;
   border: 2px solid var(--graphite);
   border-radius: 6px 9px 7px 4px;
-  margin: 14px 16px 0;
+  margin: 14px 16px 0 16px;
   background: #e6e6e2;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9),
+    0 2px 10px rgba(20, 14, 6, 0.22),
+    0 0 28px var(--table-glow);
+}
+/* 正片感：预览图顶部一条底片齿孔 */
+.inspector-preview::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -2px;
+  left: -2px;
+  width: 62px;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, var(--table-rim-deep) 0 3px, transparent 3px 7px);
+  border: 2px solid var(--graphite);
+  border-top: 0;
+  border-radius: 0 0 5px 5px;
+  pointer-events: none;
 }
 
 .inspector-preview img {
@@ -1195,7 +1320,7 @@ svg {
 
 .inspector-section {
   border-bottom: 1px solid var(--rule);
-  padding: 16px 18px 18px;
+  padding: 16px 18px 18px 20px;
 }
 
 .inspector-section-heading {
@@ -1460,7 +1585,7 @@ svg {
 }
 
 .inspector-actions {
-  padding: 12px 14px;
+  padding: 12px 14px 12px 20px;
 }
 
 .codex-disclosure {
@@ -1599,13 +1724,13 @@ svg {
 .queue-job {
   position: relative;
   display: grid;
-  flex: 0 0 238px;
-  min-width: 238px;
-  height: 90px;
-  grid-template-columns: 56px minmax(0, 1fr) 64px;
-  gap: 8px;
+  flex: 0 0 216px;
+  min-width: 216px;
+  grid-template-columns: 46px minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto;
+  gap: 4px 9px;
   border: 2px solid var(--graphite);
-  border-radius: 8px 11px 7px 10px;
+  border-radius: 9px 12px 8px 11px;
   padding: 8px;
   overflow: visible;
   background: var(--paper-raised);
@@ -1645,22 +1770,22 @@ svg {
 
 .queue-thumbnail,
 .queue-placeholder-thumb {
-  width: 56px;
-  height: 70px;
+  grid-row: 1 / span 2;
+  width: 46px;
+  height: 58px;
   border: 1px solid var(--rule);
   object-fit: cover;
   background: var(--paper-muted);
+  border-radius: 5px 7px 6px 8px;
 }
 
 .queue-role {
-  align-self: end;
-  justify-self: end;
+  position: absolute;
+  right: -7px;
+  bottom: -11px;
   z-index: 1;
-  width: 64px;
-  height: 64px;
-  /* Lift the character so its head clears the card's top border by ~4px,
-     matching the approved design where the role pokes out of the card. */
-  margin-bottom: 25px;
+  width: 62px;
+  height: 62px;
   border: 0;
   background: transparent;
   object-fit: contain;
@@ -1673,14 +1798,13 @@ svg {
 }
 
 .queue-job-title {
-  display: -webkit-box;
+  align-self: end;
   overflow: hidden;
-  margin-bottom: 2px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
-  line-height: 1.25;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .queue-status-row {
@@ -1688,13 +1812,13 @@ svg {
   align-items: baseline;
   justify-content: space-between;
   gap: 6px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-variant-numeric: tabular-nums;
 }
 
 .queue-stage {
-  color: var(--muted);
-  font-weight: 600;
+  color: var(--queue-accent, var(--muted));
+  font-weight: 700;
 }
 
 .queue-percent {
@@ -1703,10 +1827,10 @@ svg {
 }
 
 .job-progress {
+  grid-column: 1 / -1;
   position: relative;
   height: 6px;
   border-radius: 999px;
-  margin-top: 6px;
   background: var(--rule);
 }
 
@@ -1826,30 +1950,18 @@ svg {
 }
 
 .job-error {
+  grid-column: 1 / -1;
   display: -webkit-box;
-  margin-top: 4px;
   overflow: hidden;
   color: var(--red);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
   line-height: 1.3;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
 }
 
-.queue-job-date {
-  display: block;
-  margin-top: 3px;
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 9.5px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.app-shell:not(.is-queue-expanded) .queue-job-date {
-  display: none;
-}
 
 .queue-empty {
   display: grid;
@@ -2006,15 +2118,99 @@ svg {
   z-index: 7;
   top: 54px;
   display: flex;
-  gap: 5px;
+  gap: 8px;
   overflow-x: auto;
-  border-bottom: 1px solid var(--rule);
-  padding: 7px 12px;
-  background: var(--paper-raised);
+  border-bottom: 2px solid var(--graphite);
+  padding: 8px 12px 10px 20px;
+  background: linear-gradient(180deg, rgba(255, 251, 240, 0.92), rgba(255, 253, 246, 0.9));
   scrollbar-width: thin;
 }
 
-.inspector-nav button,
+/* 台沿四色工具：便利贴 / 色卡 / 直尺 / 档案夹 */
+.inspector-nav button {
+  flex: 0 0 auto;
+  position: relative;
+  min-height: 42px;
+  border: 2px solid var(--graphite);
+  padding: 7px 12px;
+  color: var(--graphite);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 2px 3px 0 rgba(20, 14, 6, 0.22);
+  transition-property: color, background-color, border-color, box-shadow, transform, filter;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+/* 概览 = 黄色便利贴：右下卷角 + 顶部一条胶带 */
+.inspector-nav button[data-inspector-jump="overview"] {
+  border-radius: 3px 9px 3px 3px;
+  background:
+    linear-gradient(135deg, transparent 0 9px, rgba(0, 0, 0, 0.18) 9px 11px, transparent 11px),
+    var(--tool-overview);
+  transform: rotate(-1.4deg);
+}
+.inspector-nav button[data-inspector-jump="overview"]:not(.is-current)::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 46px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.4);
+  border-left: 1px dashed rgba(25, 23, 21, 0.35);
+  border-right: 1px dashed rgba(25, 23, 21, 0.35);
+  transform: translateX(-50%) rotate(-1deg);
+  pointer-events: none;
+}
+
+/* 视觉分析 = 紫色色卡：左上活页孔 */
+.inspector-nav button[data-inspector-jump="visual"] {
+  border-radius: 4px 8px 5px 5px;
+  background:
+    radial-gradient(circle 5px at 10px 9px, var(--table-glass) 0 4px, rgba(25, 23, 21, 0.55) 5px, transparent 6px),
+    var(--tool-visual);
+  color: #241a05;
+  transform: rotate(0.9deg);
+}
+
+/* 实作输出 = 蓝色直尺：顶边刻度带 */
+.inspector-nav button[data-inspector-jump="implementation"] {
+  border-radius: 6px 5px 6px 5px;
+  padding-top: 14px;
+  background:
+    repeating-linear-gradient(90deg, rgba(25, 23, 21, 0.75) 0 1px, transparent 1px 7px),
+    linear-gradient(180deg, rgba(25, 23, 21, 0.28) 0 5px, transparent 5px),
+    var(--tool-implementation);
+  color: #10204d;
+  transform: rotate(-0.7deg);
+}
+
+/* 资料管理 = 绿色档案夹：左侧标签条 + 脊 */
+.inspector-nav button[data-inspector-jump="management"] {
+  border-radius: 5px 5px 5px 7px;
+  background:
+    linear-gradient(90deg, rgba(25, 23, 21, 0.3) 0 5px, transparent 5px),
+    var(--tool-management);
+  color: #0d2b1b;
+  transform: rotate(1.1deg);
+}
+
+/* 当前工具：抬起 + 铅笔虚线圈 */
+.inspector-nav button.is-current {
+  transform: translateY(-4px) rotate(0deg);
+  border-color: var(--graphite);
+  filter: saturate(1.06) brightness(1.02);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.6),
+    4px 6px 0 rgba(20, 14, 6, 0.28);
+}
+.inspector-nav button.is-current:hover {
+  border-color: var(--graphite);
+}
+/* 内容区小控件共享基础：prompt 折叠/复制、色票 */
 .prompt-toggle,
 .prompt-copy,
 .swatch {
@@ -2029,14 +2225,15 @@ svg {
   transition-duration: 150ms;
   transition-timing-function: ease-out;
 }
-
-.inspector-nav button { flex: 0 0 auto; padding: 5px 8px; font-size: 10px; }
-.inspector-nav button.is-current { color: var(--blue-deep); border-color: var(--blue); background: var(--blue-soft); box-shadow: 2px 2px 0 rgba(19, 93, 255, .18); }
-.inspector-nav button:hover, .prompt-toggle:hover, .prompt-copy:hover, .swatch:hover { color: var(--blue-deep); border-color: var(--blue); background: var(--blue-soft); }
+.inspector-nav button:hover:not(.is-current), .prompt-toggle:hover, .prompt-copy:hover, .swatch:hover { color: var(--blue-deep); border-color: var(--blue); background: var(--blue-soft); }
 .inspector-nav button:active, .prompt-toggle:active, .prompt-copy:active, .swatch:active { transform: scale(.97); }
-.inspector-nav button:focus-visible, .prompt-toggle:focus-visible, .prompt-copy:focus-visible, .swatch:focus-visible { outline: 3px solid var(--sunflower); outline-offset: 2px; }
+.inspector-nav button:focus-visible, .prompt-toggle:focus-visible, .prompt-copy:focus-visible, .swatch:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
 
 .inspector-overview { padding-top: 13px; }
+/* 章节滚动目标让出 sticky 顶栏 + 台沿工具条 */
+.inspector-section {
+  scroll-margin-top: 116px;
+}
 .inspector-overview .inspector-preview { margin: 0 0 12px; }
 .inspector-section--sub { border-top: 0; padding-top: 8px; }
 .inspector-section--sub .inspector-section-heading { margin-bottom: 8px; }
@@ -2274,9 +2471,11 @@ svg {
     inset: 0;
     display: none;
     border-left: 0;
+    box-shadow: none;
     background: var(--paper-raised);
   }
-  .inspector::before { display: none; }
+  .inspector::before,
+  .inspector::after { display: none; }
 
   body.is-inspector-open .inspector {
     display: block;

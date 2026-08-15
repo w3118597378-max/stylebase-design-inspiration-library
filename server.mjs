@@ -66,10 +66,16 @@ class ApiError extends Error {
 }
 
 function securityHeaders(contentType = null) {
+  // Dev-only allowance for impeccable live mode (browser UI variants).
+  // Enabled only when STYLEBASE_ALLOW_LIVE=1; never in production.
+  const liveAllow = process.env.STYLEBASE_ALLOW_LIVE === "1" ? " http://localhost:8400" : "";
+  // live.js styles its own chrome via inline styles (style props/CSSOM);
+  // blocked by style-src 'self' unless we relax it in live mode only.
+  const liveStyleAllow = process.env.STYLEBASE_ALLOW_LIVE === "1" ? " 'unsafe-inline'" : "";
   const headers = {
     "Cache-Control": "no-store",
     "Content-Security-Policy":
-      "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+      `default-src 'self'; img-src 'self' data: blob:; style-src 'self'${liveStyleAllow}; script-src 'self'${liveAllow}; connect-src 'self'${liveAllow}; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'`,
     "Cross-Origin-Opener-Policy": "same-origin",
     "Referrer-Policy": "no-referrer",
     "X-Content-Type-Options": "nosniff",

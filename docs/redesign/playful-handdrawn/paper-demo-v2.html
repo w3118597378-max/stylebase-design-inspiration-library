@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活页纸张仿真 Demo v2</title>
+<style>
+  /* ============================================================
+     活页纸仿真：从设计稿裁出的真实纸纹理 + 多层叠加
+     设计稿里的纸 = 拟真素材，所以核心是"贴真实纹理"，不是画形状
+     ============================================================ */
+
+  .paper {
+    /* 层 1：纸色底（兜底，纹理图没加载时也是纸色） */
+    background-color: #EFE9DB;
+
+    /* 层 2：纸纹理（qwen-image-3.0 生成，2048 高清扫描质感，无缝可平铺） */
+    background-image:
+      /* 2a. 印刷颗粒：极轻的高频噪点，盖住平铺接缝 */
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.5 0 0 0 0 0.42 0 0 0 0 0.28 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+      /* 2b. AI 生成的纸纤维纹理 */
+      url("paper-texture-512.png");
+
+    background-size: 160px 160px, 512px 512px;
+    background-repeat: repeat, repeat;
+
+    /* 层 3：纸的光感：中间略亮，四周略暗（真实纸张的受光） */
+    box-shadow:
+      inset 0 0 60px rgba(120, 95, 50, 0.07),
+      inset 0 -4px 8px rgba(120, 95, 50, 0.10),   /* 底部纸厚 */
+      inset 4px 0 8px rgba(120, 95, 50, 0.08),    /* 右侧纸厚 */
+      0 1px 2px rgba(70, 55, 25, 0.15),           /* 贴地阴影 */
+      0 8px 20px rgba(70, 55, 25, 0.20);          /* 悬浮投影 */
+
+    position: relative;
+    width: 380px;
+    height: 540px;
+    padding: 30px 26px 26px 56px; /* 左侧给活页孔留空间 */
+    border-radius: 3px;
+    font-family: "Microsoft YaHei", sans-serif;
+    color: #3D3A33;
+    overflow: hidden;
+  }
+
+  /* 层 4：活页孔（仿真实孔：厚度切面 + 看到下层 + 底部阴影） */
+  .paper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='540'%3E%3Cg%3E%3C!-- 每组孔：外圈=纸厚度切面，内圈=透出的下层阴影 --%3E%3Cg transform='translate(0,0)'%3E%3Ccircle cx='27' cy='80' r='11' fill='%23C8BCA0'/%3E%3Ccircle cx='27' cy='80' r='9' fill='%235C5342' fill-opacity='0.28'/%3E%3Ccircle cx='27' cy='80' r='9' fill='%23EFE9DB' fill-opacity='0.35'/%3E%3Ccircle cx='27.5' cy='83.5' r='9' fill='%23605545' fill-opacity='0.18'/%3E%3C/g%3E%3Cg transform='translate(0,140)'%3E%3Ccircle cx='27' cy='80' r='11' fill='%23C8BCA0'/%3E%3Ccircle cx='27' cy='80' r='9' fill='%235C5342' fill-opacity='0.28'/%3E%3Ccircle cx='27' cy='80' r='9' fill='%23EFE9DB' fill-opacity='0.35'/%3E%3Ccircle cx='27.5' cy='83.5' r='9' fill='%23605545' fill-opacity='0.18'/%3E%3C/g%3E%3Cg transform='translate(0,280)'%3E%3Ccircle cx='27' cy='80' r='11' fill='%23C8BCA0'/%3E%3Ccircle cx='27' cy='80' r='9' fill='%235C5342' fill-opacity='0.28'/%3E%3Ccircle cx='27' cy='80' r='9' fill='%23EFE9DB' fill-opacity='0.35'/%3E%3Ccircle cx='27.5' cy='83.5' r='9' fill='%23605545' fill-opacity='0.18'/%3E%3C/g%3E%3Cg transform='translate(0,420)'%3E%3Ccircle cx='27' cy='80' r='11' fill='%23C8BCA0'/%3E%3Ccircle cx='27' cy='80' r='9' fill='%235C5342' fill-opacity='0.28'/%3E%3Ccircle cx='27' cy='80' r='9' fill='%23EFE9DB' fill-opacity='0.35'/%3E%3Ccircle cx='27.5' cy='83.5' r='9' fill='%23605545' fill-opacity='0.18'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-size: 46px 540px;
+    background-repeat: no-repeat;
+  }
+
+  /* 层 5：右上角卷边（卷起纸角 + 内侧阴影 + 角下投影） */
+  .paper::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 46px;
+    height: 46px;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46'%3E%3C!-- 卷起部分：三角 + 圆角弧线，边缘亮、内侧暗 --%3E%3Cpath d='M0 0 L46 0 C46 24 40 40 24 44 C38 36 44 22 44 4 L0 0 Z' fill='url(%23curl)'/%3E%3Cdefs%3E%3ClinearGradient id='curl' x1='1' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FBF7EE'/%3E%3Cstop offset='0.5' stop-color='%23E3D7BB'/%3E%3Cstop offset='1' stop-color='%23B9A98A'/%3E%3C/linearGradient%3E%3C/defs%3E%3C!-- 卷角下方投到纸面的阴影 --%3E%3Cpath d='M0 40 L8 36 L3 44 Z' fill='%235C5342' fill-opacity='0.15'/%3E%3C/svg%3E");
+  }
+
+  /* 页面内容占位（验证用） */
+  .paper h2 { margin: 0 0 10px; font-size: 17px; }
+  .paper p { font-size: 13px; line-height: 1.7; margin: 0 0 12px; opacity: 0.88; }
+  .swatch { display: inline-block; width: 26px; height: 26px; margin-right: 6px; border: 1px solid rgba(0,0,0,0.12); }
+</style>
+</head>
+<body style="background:#DDD5C4; padding:40px; display:flex; gap:40px; flex-wrap:wrap;">
+
+  <div class="paper">
+    <h2>资产资讯 · 活页版</h2>
+    <p>Humanizing technology<br>柔和渐层 + 大量留白，传达信任与未来感。</p>
+    <p>
+      <span class="swatch" style="background:#7C8FD6"></span>
+      <span class="swatch" style="background:#B9A8E8"></span>
+      <span class="swatch" style="background:#F2C4D8"></span>
+      <span class="swatch" style="background:#F5D76E"></span>
+    </p>
+    <p>标签：科技 · 极简 · 渐层 · 留白</p>
+    <p style="opacity:0.6">Prompt：极简科技网站设计，柔和的紫蓝渐层球体，大量留白，干净排版，现代感。</p>
+  </div>
+
+  <div style="max-width:320px; font-size:13px; line-height:1.8; color:#5A5244;">
+    <b>v2 和 v1 的区别：</b><br><br>
+    1. 纸底不再是纯色 + 噪点，而是 <b>从你设计稿里裁出的真实纸纹理</b>（paper-texture.jpg，90x90 平铺）——它就是参考图里的同一张纸<br>
+    2. 高频噪点盖住平铺接缝，重复感不可见<br>
+    3. 活页孔是"仿真孔"：外圈纸厚度切面 + 内圈透出下层阴影 + 底部暗弧（光从上方来）<br>
+    4. 卷边带渐变（边缘亮、内侧暗）+ 卷角下的投影<br>
+    5. 多层 box-shadow 模拟纸的受光和厚度<br><br>
+    <b>原理一句话：拟真素材要用拟真素材还原。矢量形状负责结构，真实纹理负责质感。</b>
+  </div>
+
+</body>
+</html>

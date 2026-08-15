@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="710" viewBox="0 0 1180 710" role="img" aria-labelledby="title desc">
+  <title id="title">Inspector Paper V3 physical paper study</title>
+  <desc id="desc">A Stylebase workspace with the right inspector presented as a slightly tilted loose-leaf paper sheet, rear binding loops, punched left edge, paper texture and shadow.</desc>
+  <defs>
+    <filter id="paper-shadow" x="-20%" y="-15%" width="150%" height="150%">
+      <feDropShadow dx="12" dy="18" stdDeviation="12" flood-color="#4c3b1f" flood-opacity=".28"/>
+      <feDropShadow dx="3" dy="3" stdDeviation="0" flood-color="#181818" flood-opacity=".22"/>
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".76" numOctaves="2" seed="17" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" values=".32 0 0 0 .4 0 .28 0 0 .34 0 0 .18 0 .23 0 0 0 .075 0"/>
+    </filter>
+    <pattern id="rules" width="390" height="33" patternUnits="userSpaceOnUse">
+      <path d="M0 32.5H390" stroke="#4d6aa1" stroke-opacity=".16"/>
+    </pattern>
+    <linearGradient id="desk" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#eee9de"/><stop offset="1" stop-color="#dcd4c5"/>
+    </linearGradient>
+    <radialGradient id="orb" cx="38%" cy="36%"><stop stop-color="#5b3eff"/><stop offset=".35" stop-color="#a899ff"/><stop offset=".72" stop-color="#e3e0ff"/><stop offset="1" stop-color="#f8f8fc"/></radialGradient>
+  </defs>
+
+  <rect width="1180" height="710" rx="8" fill="#181818"/>
+  <rect x="3" y="3" width="1174" height="704" rx="5" fill="url(#desk)"/>
+  <path d="M740 3V707" stroke="#181818" stroke-width="2"/>
+  <g fill="#fffdf8" stroke="#181818" stroke-width="2">
+    <rect x="45" y="44" width="315" height="38" rx="4"/><rect x="390" y="44" width="175" height="38" rx="4"/>
+    <rect x="45" y="120" width="150" height="122" rx="4"/><rect x="213" y="120" width="150" height="122" rx="4" fill="#dce7ff"/>
+    <rect x="45" y="260" width="150" height="122" rx="4" fill="#ffe166"/><rect x="213" y="260" width="150" height="122" rx="4" fill="#d8edd5"/>
+    <rect x="45" y="400" width="150" height="122" rx="4" fill="#f9f7f1"/><rect x="213" y="400" width="150" height="122" rx="4" fill="#e4e0f4"/>
+  </g>
+  <g fill="#181818" font-family="Microsoft YaHei, sans-serif">
+    <text x="45" y="154" font-size="14" font-weight="700" letter-spacing="2">STYLEBASE / VISUAL INDEX</text>
+    <text x="45" y="202" font-size="38" font-weight="800">素材库</text>
+    <text x="45" y="578" font-size="14" fill="#5b564d">右侧不是一块卡片，而是一张被翻开的分析纸页。</text>
+    <text x="1132" y="28" text-anchor="end" font-size="11" letter-spacing="1.4" fill="#6b6458">PAPER CHASSIS STUDY / V3</text>
+  </g>
+
+  <g transform="translate(755 26) rotate(-.72 210 337)">
+    <!-- Binding loops: separate rear hardware -->
+    <g fill="#f0eadf" stroke="#181818" stroke-width="2.35" stroke-linejoin="round">
+      <path d="M38 11C11 8 9 34 30 36H46V25H31C24 25 25 17 32 17H42"/>
+      <path d="M38 91C11 88 9 114 30 116H46v-11H31C24 105 25 97 32 97h10"/>
+      <path d="M38 171C11 168 9 194 30 196H46v-11H31C24 185 25 177 32 177h10"/>
+      <path d="M38 251C11 248 9 274 30 276H46v-11H31C24 265 25 257 32 257h10"/>
+      <path d="M38 331C11 328 9 354 30 356H46v-11H31C24 345 25 337 32 337h10"/>
+      <path d="M38 411C11 408 9 434 30 436H46v-11H31C24 425 25 417 32 417h10"/>
+      <path d="M38 491C11 488 9 514 30 516H46v-11H31C24 505 25 497 32 497h10"/>
+      <path d="M38 571C11 568 9 594 30 596H46v-11H31C24 585 25 577 32 577h10"/>
+    </g>
+
+    <!-- The paper itself is a separate raised surface -->
+    <path d="M28 2 Q142 4 226 2 T408 4 L410 667 Q332 670 254 668 T121 670 L27 666 Q29 584 27 502 T28 337 Q26 253 28 169 T28 2Z" fill="#f5f0e5" stroke="#181818" stroke-width="2" filter="url(#paper-shadow)"/>
+    <path d="M29 3 Q142 5 226 3 T407 5 L409 666 Q332 669 254 667 T121 669 L28 665 Q30 584 28 502 T29 337 Q27 253 29 169 T29 3Z" fill="url(#rules)"/>
+    <path d="M29 3 Q142 5 226 3 T407 5 L409 666 Q332 669 254 667 T121 669 L28 665 Q30 584 28 502 T29 337 Q27 253 29 169 T29 3Z" filter="url(#grain)" opacity=".45"/>
+    <path d="M68 9V659" stroke="#d44b43" stroke-opacity=".28"/>
+
+    <!-- Punches show the desk beneath; their dark lower rim makes them physical -->
+    <g fill="#dcd4c5" stroke="#181818" stroke-width="1.4">
+      <circle cx="28" cy="20" r="10"/><circle cx="28" cy="100" r="10"/><circle cx="28" cy="180" r="10"/><circle cx="28" cy="260" r="10"/>
+      <circle cx="28" cy="340" r="10"/><circle cx="28" cy="420" r="10"/><circle cx="28" cy="500" r="10"/><circle cx="28" cy="580" r="10"/>
+    </g>
+    <g fill="none" stroke="#70582f" stroke-opacity=".38" stroke-width="2" stroke-linecap="round">
+      <path d="M22 26Q28 31 34 26"/><path d="M22 106Q28 111 34 106"/><path d="M22 186Q28 191 34 186"/><path d="M22 266Q28 271 34 266"/>
+      <path d="M22 346Q28 351 34 346"/><path d="M22 426Q28 431 34 426"/><path d="M22 506Q28 511 34 506"/><path d="M22 586Q28 591 34 586"/>
+    </g>
+
+    <g font-family="Microsoft YaHei, sans-serif" fill="#181818">
+      <text x="81" y="47" font-size="22" font-weight="800">资产资讯</text>
+      <g transform="translate(80 65)">
+        <rect width="290" height="130" rx="3" fill="#f7f8ff" stroke="#181818" stroke-width="2"/>
+        <text x="14" y="18" font-size="9" font-weight="700">Chapter</text><text x="14" y="29" font-size="9" font-weight="700">Studio</text>
+        <text x="14" y="77" font-size="20" font-weight="800" letter-spacing="-1.7">Humanizing</text><text x="14" y="96" font-size="20" font-weight="800" letter-spacing="-1.7">technology</text>
+        <rect x="138" width="152" height="130" fill="url(#orb)"/>
+        <circle cx="208" cy="68" r="44" fill="#7252ff" opacity=".43"/>
+      </g>
+      <text x="81" y="222" font-size="13" font-weight="800">视觉 DNA</text>
+      <g transform="translate(81 234)"><path d="M0 9Q9-5 19 6Q26 16 14 24Q3 25 0 9" fill="#6650c1"/><path d="M35 9Q44-5 54 6Q61 16 49 24Q38 25 35 9" fill="#1355df"/><path d="M70 9Q79-5 89 6Q96 16 84 24Q73 25 70 9" fill="#8494ed"/><path d="M105 9Q114-5 124 6Q131 16 119 24Q108 25 105 9" fill="#f39aad"/><path d="M140 9Q149-5 159 6Q166 16 154 24Q143 25 140 9" fill="#efd899"/><path d="M175 9Q184-5 194 6Q201 16 189 24Q178 25 175 9" fill="#a8aaa9"/></g>
+      <text x="81" y="286" font-size="13" font-weight="800">标签</text>
+      <g font-size="11" fill="#254b2c" stroke="#4b7654" stroke-width="1.4"><rect x="81" y="296" width="42" height="22" rx="5" fill="#ffffff" fill-opacity=".5"/><rect x="130" y="296" width="42" height="22" rx="5" fill="#ffffff" fill-opacity=".5"/><rect x="179" y="296" width="42" height="22" rx="5" fill="#ffffff" fill-opacity=".5"/><rect x="228" y="296" width="64" height="22" rx="5" fill="#ffffff" fill-opacity=".5"/><text x="90" y="311" stroke="none">科技</text><text x="139" y="311" stroke="none">极简</text><text x="188" y="311" stroke="none">渐层</text><text x="237" y="311" stroke="none">网站设计</text></g>
+      <text x="81" y="353" font-size="13" font-weight="800">备注</text>
+      <text x="81" y="377" font-size="12">柔和渐层 + 大量留白，传达信任与未来感。</text><text x="81" y="398" font-size="12">适合科技、SaaS 品牌参考。</text>
+      <rect x="81" y="424" width="288" height="91" rx="4" fill="#fffdf8" fill-opacity=".5" stroke="#181818" stroke-width="1.4"/>
+      <text x="93" y="450" font-size="11">极简科技网站设计，柔和的紫蓝渐层球体，</text><text x="93" y="470" font-size="11">大量留白，干净排版，现代感。</text>
+    </g>
+    <!-- A top clip belongs to the page hardware, not its background -->
+    <path d="M381 7L371 61C369 71 356 68 358 58L368 14C370 4 384 6 383 17L374 54" fill="none" stroke="#181818" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#1d51d5" font-family="Microsoft YaHei, sans-serif" font-size="12" font-weight="800"><text x="280" y="638">纸页不是背景图</text><path d="M279 645q31 4 66-1" fill="none" stroke="#1d51d5" stroke-width="2"/></g>
+  </g>
+</svg>
