@@ -59,6 +59,7 @@ const elements = {
   searchInput: document.querySelector("#search-input"),
   disciplineFilter: document.querySelector("#discipline-filter"),
   statusFilter: document.querySelector("#status-filter"),
+  ratingFilter: document.querySelector("#rating-filter"),
   sortSelect: document.querySelector("#sort-select"),
   clearFiltersButton: document.querySelector("#clear-filters-button"),
   importButton: document.querySelector("#import-button"),
@@ -68,6 +69,10 @@ const elements = {
   retryLoadButton: document.querySelector("#retry-load-button"),
   primaryNav: document.querySelector("#primary-nav"),
   collectionNav: document.querySelector("#collection-nav"),
+  countTrash: document.querySelector("#count-trash"),
+  batchTrashButton: document.querySelector("#batch-trash-button"),
+  batchRestoreButton: document.querySelector("#batch-restore-button"),
+  batchPurgeButton: document.querySelector("#batch-purge-button"),
   newCollectionButton: document.querySelector("#new-collection-button"),
   collectionDialog: document.querySelector("#collection-dialog"),
   collectionForm: document.querySelector("#collection-form"),
@@ -279,6 +284,8 @@ function normalizeAsset(raw) {
     rightsNote: asset.rightsNote || asset.rights_note || "",
     notes: asset.notes || "",
     favorite: Boolean(asset.favorite),
+    rating: finiteNumber(asset.rating, 0),
+    deletedAt: asset.deletedAt || asset.deleted_at || "",
     collectionIds: asArray(
       asset.collectionIds || asset.collection_ids || asset.collections,
     ).map((item) => String(item?.id ?? item)),
@@ -960,11 +967,18 @@ function filteredAssets() {
   if (state.status) {
     assets = assets.filter((asset) => asset.status === state.status);
   }
+  if (state.rating) {
+    assets = assets.filter((asset) => asset.rating >= state.rating);
+  }
 
   if (state.sort === "title") {
     assets.sort((a, b) => a.title.localeCompare(b.title, "zh-Hans"));
   } else if (state.sort === "status") {
     assets.sort((a, b) => a.status.localeCompare(b.status));
+  } else if (state.sort === "rating") {
+    assets.sort(
+      (a, b) => b.rating - a.rating || b.updatedAt.localeCompare(a.updatedAt),
+    );
   } else {
     assets.sort((a, b) => {
       const aTime = new Date(a.createdAt || 0).getTime();
@@ -1014,6 +1028,9 @@ function renderViewHeading() {
   } else if (state.view === "inbox") {
     elements.viewKicker.textContent = "待确认与待分析";
     elements.viewTitle.textContent = "待整理";
+  } else if (state.view === "trash") {
+    elements.viewKicker.textContent = "已移出素材库";
+    elements.viewTitle.textContent = "资源回收筒";
   } else {
     elements.viewKicker.textContent = "视觉索引";
     elements.viewTitle.textContent = "素材库";
@@ -1033,6 +1050,9 @@ function renderCounts() {
   elements.countInbox.textContent = formatNumber(inboxCount);
   elements.countCollections.textContent = formatNumber(state.collections.length);
   elements.countQueue.textContent = formatNumber(jobsActive);
+  elements.countTrash.textContent = formatNumber(
+    finiteNumber(state.stats.trashedAssets, state.stats.trashed_assets) ?? 0,
+  );
 }
 
 function renderProviderState() {
@@ -1139,26 +1159,33 @@ function renderGallery() {
     ? activeCollection()?.name || "收藏集"
     : state.view === "inbox"
       ? "待整理"
-      : "素材库";
+      : state.view === "trash"
+        ? "资源回收筒"
+        : "素材库";
   elements.resultSummary.textContent = useSynthetic
     ? "资料库目前为空 · 显示 8 张合成介面研究"
     : `${contextLabel} · ${formatNumber(assets.length)} 张影像`;
 
   if (!renderedAssets.length) {
+    const trashEmpty = state.view === "trash";
     elements.gallery.innerHTML = `
       <div class="empty-library-panel">
         <img class="empty-library-illustration" src="/assets/illustrations/empty-library.png" alt="" aria-hidden="true" />
         <div>
-          <h2>${apiLibraryEmpty ? "素材库目前为空" : "没有符合条件的影像"}</h2>
+          <h2>${trashEmpty ? "回收筒是空的" : apiLibraryEmpty ? "素材库目前为空" : "没有符合条件的影像"}</h2>
           <p>${
-            apiLibraryEmpty
-               ? "汇入影像，或把图片放入监看资料夹后执行扫描。"
-              : "调整搜寻字词或清除筛选条件；资料不会因为没有结果而被移除。"
+            trashEmpty
+              ? "删除的素材会先移到这里，恢复或彻底删除前都还找得回来。"
+              : apiLibraryEmpty
+                ? "汇入影像，或把图片放入监看资料夹后执行扫描。"
+                : "调整搜寻字词或清除筛选条件；资料不会因为没有结果而被移除。"
           }</p>
           ${
-            apiLibraryEmpty
-              ? '<button class="button button--primary" type="button" data-action="import">汇入第一张影像</button>'
-              : '<button class="button button--quiet" type="button" data-action="clear-filters">清除条件</button>'
+            trashEmpty
+              ? ""
+              : apiLibraryEmpty
+                ? '<button class="button button--primary" type="button" data-action="import">汇入第一张影像</button>'
+                : '<button class="button button--quiet" type="button" data-action="clear-filters">清除条件</button>'
           }
         </div>
       </div>`;
@@ -1183,6 +1210,7 @@ function renderGallery() {
 function renderAssetCard(asset, index, total) {
   const current = asset.id === state.selectedId;
   const batchSelected = state.selectedIds.has(asset.id);
+  const isTrash = state.view === "trash";
   const dimensions =
     asset.width && asset.height ? `${asset.width} × ${asset.height}` : "尺寸未记录";
   const imageUrl = safeMediaUrl(asset.mediaUrl);
@@ -1203,16 +1231,60 @@ function renderAssetCard(asset, index, total) {
       >
         <svg class="icon" aria-hidden="true"><use href="#icon-check"></use></svg>
       </button>`;
+  const trashButton = isTrash
+    ? ""
+    : `
+      <button
+        class="asset-trash-toggle"
+        type="button"
+        data-trash-id="${escapeHTML(asset.id)}"
+        aria-label="移入回收筒：${escapeHTML(asset.title)}"
+      >
+        <svg class="icon" aria-hidden="true"><use href="#icon-trash"></use></svg>
+      </button>`;
+  const trashActions = isTrash
+    ? `
+      <div class="asset-trash-actions">
+        <button
+          class="button button--quiet"
+          type="button"
+          data-restore-id="${escapeHTML(asset.id)}"
+        >
+          <svg class="icon" aria-hidden="true"><use href="#icon-restore"></use></svg>
+          <span>恢复</span>
+        </button>
+        <button
+          class="button button--danger"
+          type="button"
+          data-purge-id="${escapeHTML(asset.id)}"
+        >
+          <svg class="icon" aria-hidden="true"><use href="#icon-trash"></use></svg>
+          <span>彻底删除</span>
+        </button>
+      </div>`
+    : "";
 
   return `
     <figure
-      class="asset-card ${current ? "is-selected is-loupe" : ""} ${batchSelected ? "is-batch-selected" : ""}"
+      class="asset-card ${current ? "is-selected is-loupe" : ""} ${batchSelected ? "is-batch-selected" : ""} ${isTrash ? "is-trashed" : ""}"
       data-asset-id="${escapeHTML(asset.id)}"
       data-registration="${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}"
     >
       ${stateBadge}
       ${selectionButton}
-      <button
+      ${trashButton}
+      ${
+        isTrash
+          ? `<div class="asset-open asset-open--static" aria-hidden="true">
+              ${
+                imageUrl
+                  ? `<img src="${escapeHTML(imageUrl)}" alt="" ${
+                      index < 5 ? 'fetchpriority="high"' : 'loading="lazy"'
+                    } decoding="async" />`
+                  : `<span class="queue-placeholder-thumb" aria-hidden="true"></span>`
+              }
+            </div>`
+          : `<button
         class="asset-open"
         type="button"
         data-open-asset="${escapeHTML(asset.id)}"
@@ -1226,11 +1298,34 @@ function renderAssetCard(asset, index, total) {
               } decoding="async" />`
             : `<span class="queue-placeholder-thumb" aria-hidden="true"></span>`
         }
-      </button>
+      </button>`
+      }
       <figcaption class="asset-caption">
         <strong>${escapeHTML(asset.title)}</strong>
         <span>${escapeHTML(dimensions)}</span>
       </figcaption>
+      ${
+        asset.synthetic || isTrash
+          ? ""
+          : `<div class="star-rating" role="group" aria-label="评分 ${asset.rating}/5">
+              ${[1, 2, 3, 4, 5]
+                .map(
+                  (star) => `
+                <button
+                  type="button"
+                  class="star ${asset.rating >= star ? "is-filled" : ""}"
+                  data-star="${star}"
+                  data-asset-id="${escapeHTML(asset.id)}"
+                  aria-label="设为 ${star} 星"
+                  aria-pressed="${asset.rating >= star}"
+                >
+                  <svg class="icon" aria-hidden="true"><use href="#icon-star"></use></svg>
+                </button>`,
+                )
+                .join("")}
+            </div>`
+      }
+      ${trashActions}
       <span class="proof-mark proof-mark--tl" aria-hidden="true"></span>
       <span class="proof-mark proof-mark--tr" aria-hidden="true"></span>
       <span class="proof-mark proof-mark--br" aria-hidden="true"></span>
@@ -1469,6 +1564,24 @@ function renderInspector() {
       <div class="inspector-title">
         <p>${escapeHTML(stateLabel(asset.status))}</p>
         <h2>${escapeHTML(asset.title)}</h2>
+        <div class="inspector-rating" role="group" aria-label="评分 ${asset.rating}/5">
+          ${[1, 2, 3, 4, 5]
+            .map(
+              (star) => `
+            <button
+              type="button"
+              class="star ${asset.rating >= star ? "is-filled" : ""}"
+              data-star="${star}"
+              data-asset-id="${escapeHTML(asset.id)}"
+              aria-label="设为 ${star} 星"
+              aria-pressed="${asset.rating >= star}"
+            >
+              <svg class="icon" aria-hidden="true"><use href="#icon-star"></use></svg>
+            </button>`,
+            )
+            .join("")}
+          <span class="inspector-rating-value">${asset.rating}/5</span>
+        </div>
       </div>
       <button class="icon-button" type="button" data-close-inspector aria-label="关闭详细检视">
         <span class="inspector-back-label">返回素材库</span>
@@ -1693,9 +1806,13 @@ function updateAnalyzeControls() {
 
 function renderBatchBar() {
   const count = state.selectedIds.size;
+  const isTrash = state.view === "trash";
   elements.batchBar.hidden = count === 0;
   elements.batchCount.textContent = `已选 ${formatNumber(count)} 张`;
   elements.batchAnalyzeButton.disabled = count === 0;
+  elements.batchTrashButton.hidden = isTrash;
+  elements.batchRestoreButton.hidden = !isTrash;
+  elements.batchPurgeButton.hidden = !isTrash;
   updateAnalyzeControls();
 }
 
@@ -1833,6 +1950,8 @@ async function refreshAssets({ selectId = null } = {}) {
   });
   if (state.query) params.set("query", state.query);
   if (state.status) params.set("status", state.status);
+  if (state.rating) params.set("rating", String(state.rating));
+  if (state.view === "trash") params.set("trashed", "1");
   if (state.activeCollectionId) {
     params.set("collectionId", state.activeCollectionId);
   }
@@ -2273,10 +2392,12 @@ function clearFilters() {
   state.query = "";
   state.discipline = "";
   state.status = "";
+  state.rating = 0;
   state.sort = "newest";
   elements.searchInput.value = "";
   elements.disciplineFilter.value = "";
   elements.statusFilter.value = "";
+  elements.ratingFilter.value = "";
   elements.sortSelect.value = "newest";
   refreshAssets().catch((error) =>
     notify(`无法清除条件：${error.message}`, "error"),
@@ -2345,6 +2466,71 @@ function isTypingTarget(target) {
   );
 }
 
+function hasDraggedFiles(event) {
+  return [...(event.dataTransfer?.types || [])].includes("Files");
+}
+
+let dragDepth = 0;
+
+window.addEventListener("dragenter", (event) => {
+  if (!hasDraggedFiles(event)) return;
+  dragDepth += 1;
+  document.body.classList.add("is-dragging");
+});
+
+window.addEventListener("dragleave", (event) => {
+  if (!hasDraggedFiles(event)) return;
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (dragDepth === 0) document.body.classList.remove("is-dragging");
+});
+
+window.addEventListener("dragover", (event) => {
+  if (!hasDraggedFiles(event)) return;
+  event.preventDefault();
+});
+
+window.addEventListener("drop", (event) => {
+  if (!hasDraggedFiles(event)) return;
+  event.preventDefault();
+  dragDepth = 0;
+  document.body.classList.remove("is-dragging");
+  const files = [...(event.dataTransfer?.files || [])];
+  if (files.length) importFiles(files);
+});
+
+function pasteImageFileName(file, stamp, index) {
+  if (file.name) return file;
+  const extension =
+    file.type === "image/jpeg"
+      ? ".jpg"
+      : file.type === "image/webp"
+        ? ".webp"
+        : file.type === "image/gif"
+          ? ".gif"
+          : ".png";
+  const suffix = index > 0 ? `-${index + 1}` : "";
+  return new File([file], `paste-${stamp}${suffix}${extension}`, {
+    type: file.type,
+  });
+}
+
+document.addEventListener("paste", (event) => {
+  if (isTypingTarget(event.target)) return;
+  const items = [...(event.clipboardData?.items || [])];
+  const images = items
+    .filter((item) => item.type.startsWith("image/"))
+    .map((item) => item.getAsFile())
+    .filter(Boolean);
+  if (!images.length) return;
+  event.preventDefault();
+  const now = new Date();
+  const pad = (value) => String(value).padStart(2, "0");
+  const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(
+    now.getDate(),
+  )}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  importFiles(images.map((file, index) => pasteImageFileName(file, stamp, index)));
+});
+
 elements.searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
   window.clearTimeout(state.searchTimer);
@@ -2376,6 +2562,13 @@ elements.statusFilter.addEventListener("change", () => {
   );
 });
 
+elements.ratingFilter.addEventListener("change", () => {
+  state.rating = finiteNumber(elements.ratingFilter.value, 0);
+  refreshAssets().catch((error) =>
+    notify(`筛选失败：${error.message}`, "error"),
+  );
+});
+
 elements.sortSelect.addEventListener("change", () => {
   state.sort = elements.sortSelect.value;
   refreshAssets().catch((error) =>
@@ -2394,6 +2587,15 @@ elements.recognizeButton.addEventListener("click", () =>
 );
 elements.batchAnalyzeButton.addEventListener("click", () =>
   analyzeAssets([...state.selectedIds]),
+);
+elements.batchTrashButton.addEventListener("click", () =>
+  batchTrashAssets([...state.selectedIds]),
+);
+elements.batchRestoreButton.addEventListener("click", () =>
+  batchRestoreAssets([...state.selectedIds]),
+);
+elements.batchPurgeButton.addEventListener("click", () =>
+  batchPurgeAssets([...state.selectedIds]),
 );
 elements.clearSelectionButton.addEventListener("click", () => {
   state.selectedIds.clear();
@@ -2491,8 +2693,140 @@ document.addEventListener(
   true,
 );
 
+async function trashAsset(assetId) {
+  try {
+    await api(`/api/assets/${assetId}`, { method: "DELETE" });
+    state.selectedIds.delete(assetId);
+    if (state.selectedId === assetId) state.selectedId = null;
+    adjustTrashCount(1);
+    await refreshAssets();
+    notify("已移入回收筒。");
+  } catch (error) {
+    notify(`无法移入回收筒：${error.message}`, "error");
+  }
+}
+
+async function restoreTrashedAsset(assetId) {
+  try {
+    await api(`/api/assets/${assetId}/restore`, { method: "POST" });
+    state.selectedIds.delete(assetId);
+    adjustTrashCount(-1);
+    await refreshAssets();
+    notify("已恢复。");
+  } catch (error) {
+    notify(`无法恢复：${error.message}`, "error");
+  }
+}
+
+async function purgeTrashedAsset(assetId) {
+  if (!window.confirm("彻底删除后无法恢复，确定删除这张素材？")) return;
+  try {
+    await api(`/api/assets/${assetId}?permanent=1`, { method: "DELETE" });
+    state.selectedIds.delete(assetId);
+    adjustTrashCount(-1);
+    await refreshAssets();
+    notify("已彻底删除。");
+  } catch (error) {
+    notify(`无法删除：${error.message}`, "error");
+  }
+}
+
+async function batchTrashAssets(ids) {
+  if (!ids.length) return;
+  try {
+    for (const id of ids) {
+      await api(`/api/assets/${id}`, { method: "DELETE" });
+    }
+    state.selectedIds.clear();
+    adjustTrashCount(ids.length);
+    await refreshAssets();
+    notify(`已将 ${ids.length} 张移入回收筒。`);
+  } catch (error) {
+    notify(`批次移入失败：${error.message}`, "error");
+  }
+}
+
+async function batchRestoreAssets(ids) {
+  if (!ids.length) return;
+  try {
+    for (const id of ids) {
+      await api(`/api/assets/${id}/restore`, { method: "POST" });
+    }
+    state.selectedIds.clear();
+    adjustTrashCount(-ids.length);
+    await refreshAssets();
+    notify(`已恢复 ${ids.length} 张。`);
+  } catch (error) {
+    notify(`批次恢复失败：${error.message}`, "error");
+  }
+}
+
+async function batchPurgeAssets(ids) {
+  if (!ids.length) return;
+  if (!window.confirm(`彻底删除 ${ids.length} 张素材？此操作无法恢复。`)) return;
+  try {
+    for (const id of ids) {
+      await api(`/api/assets/${id}?permanent=1`, { method: "DELETE" });
+    }
+    state.selectedIds.clear();
+    adjustTrashCount(-ids.length);
+    await refreshAssets();
+    notify(`已彻底删除 ${ids.length} 张。`);
+  } catch (error) {
+    notify(`批次删除失败：${error.message}`, "error");
+  }
+}
+
+function adjustTrashCount(delta) {
+  const current =
+    finiteNumber(state.stats.trashedAssets, state.stats.trashed_assets) ?? 0;
+  state.stats.trashedAssets = Math.max(0, current + delta);
+}
+
 document.addEventListener("click", async (event) => {
+  const starButton = event.target.closest("[data-star]");
+  if (starButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    const assetId = starButton.dataset.assetId;
+    const starValue = Number(starButton.dataset.star);
+    const asset = state.assets.find((item) => item.id === assetId);
+    const next = asset?.rating === starValue ? 0 : starValue;
+    try {
+      await api(`/api/assets/${assetId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ rating: next }),
+      });
+      if (asset) asset.rating = next;
+      renderGallery();
+      renderInspector();
+    } catch (error) {
+      notify(`评分失败：${error.message}`, "error");
+    }
+    return;
+  }
   const target = event.target;
+  const trashButton = target.closest("[data-trash-id]");
+  if (trashButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    await trashAsset(trashButton.dataset.trashId);
+    return;
+  }
+  const restoreButton = target.closest("[data-restore-id]");
+  if (restoreButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    await restoreTrashedAsset(restoreButton.dataset.restoreId);
+    return;
+  }
+  const purgeButton = target.closest("[data-purge-id]");
+  if (purgeButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    await purgeTrashedAsset(purgeButton.dataset.purgeId);
+    return;
+  }
   const openAssetButton = target.closest("[data-open-asset]");
   if (openAssetButton) {
     const id = openAssetButton.dataset.openAsset;

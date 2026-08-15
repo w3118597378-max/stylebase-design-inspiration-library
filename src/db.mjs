@@ -354,6 +354,8 @@ function assetFromRow(row) {
     title: row.title,
     notes: row.notes,
     favorite: Boolean(row.favorite),
+    rating: Number(row.rating ?? 0),
+    deletedAt: row.deleted_at,
     fileStatus: row.file_status,
     analysisStatus: row.analysis_status,
     createdAt: row.created_at,
@@ -439,6 +441,8 @@ export function createCatalog(dbPath) {
       title TEXT NOT NULL DEFAULT '',
       notes TEXT NOT NULL DEFAULT '',
       favorite INTEGER NOT NULL DEFAULT 0 CHECK (favorite IN (0, 1)),
+      rating INTEGER NOT NULL DEFAULT 0 CHECK (rating BETWEEN 0 AND 5),
+      deleted_at TEXT,
       file_status TEXT NOT NULL DEFAULT 'available',
       analysis_status TEXT NOT NULL DEFAULT 'pending',
       created_at TEXT NOT NULL,
@@ -541,10 +545,39 @@ export function createCatalog(dbPath) {
     PRAGMA user_version = 1;
   `);
 
+  migrateSchema();
+
   db.prepare(`
     INSERT OR IGNORE INTO settings(id, data_json, updated_at)
     VALUES(1, ?, ?)
   `).run(JSON.stringify(DEFAULT_SETTINGS), currentTimestamp());
+
+  function migrateSchema() {
+    const columns = new Set(
+      db
+        .prepare("PRAGMA table_info(assets)")
+        .all()
+        .map((column) => column.name),
+    );
+    if (!columns.has("rating")) {
+      db.exec(`
+        ALTER TABLE assets
+        ADD COLUMN rating INTEGER NOT NULL DEFAULT 0
+          CHECK (rating BETWEEN 0 AND 5)
+      `);
+    }
+    if (!columns.has("deleted_at")) {
+      db.exec(`
+        ALTER TABLE assets
+        ADD COLUMN deleted_at TEXT
+      `);
+    }
+    db.exec(`
+      CREATE INDEX IF NOT EXISTS assets_deleted_idx
+        ON assets(deleted_at)
+    `);
+    db.exec("PRAGMA user_version = 2");
+  }
 
   function transaction(callback) {
     db.exec("BEGIN IMMEDIATE");
@@ -704,8 +737,16 @@ export function createCatalog(dbPath) {
           COALESCE(SUM(analysis_status = 'needs_setup'), 0) AS needs_setup_assets,
           COALESCE(SUM(file_size), 0) AS storage_bytes
         FROM assets
+        WHERE deleted_at IS NULL
       `)
       .get();
+    const trashed = db
+      .prepare(`
+        SELECT COUNT(*) AS count
+        FROM assets
+        WHERE deleted_at IS NOT NULL
+      `)
+      .get().count;
     const jobs = db
       .prepare(`
         SELECT
@@ -713,7 +754,9 @@ export function createCatalog(dbPath) {
           COALESCE(SUM(state = 'processing'), 0) AS processing_jobs,
           COALESCE(SUM(state = 'failed'), 0) AS failed_jobs,
           COALESCE(SUM(state = 'needs_setup'), 0) AS needs_setup_jobs
-        FROM jobs
+        FROM jobs j
+        INNER JOIN assets a ON a.id = j.asset_id
+        WHERE a.deleted_at IS NULL
       `)
       .get();
     const collectionCount = db
@@ -725,6 +768,7 @@ export function createCatalog(dbPath) {
       availableAssets: Number(assets.available_assets),
       missingAssets: Number(assets.missing_assets),
       favoriteAssets: Number(assets.favorite_assets),
+      trashedAssets: Number(trashed),
       analyzedAssets: Number(assets.analyzed_assets),
       pendingAssets: Number(assets.pending_assets),
       queuedAssets: Number(assets.queued_assets),
@@ -917,6 +961,7 @@ export function createCatalog(dbPath) {
             FROM current_scan_paths scan
             WHERE scan.relative_path = assets.relative_path COLLATE NOCASE
           )
+          AND deleted_at IS NULL
       `).run(now);
       return { markedMissing: Number(result.changes) };
     });
@@ -983,6 +1028,18 @@ export function createCatalog(dbPath) {
       parameters.push(booleanValue(filters.favorite, "favorite") ? 1 : 0);
     }
 
+    const trashed =
+      filters.trashed === ""
+        ? false
+        : booleanValue(filters.trashed ?? false, "trashed");
+    where.push(trashed ? "a.deleted_at IS NOT NULL" : "a.deleted_at IS NULL");
+
+    const rating = Number(filters.rating ?? "");
+    if (Number.isInteger(rating) && rating >= 1 && rating <= 5) {
+      where.push("a.rating >= ?");
+      parameters.push(rating);
+    }
+
     if (
       filters.collectionId !== undefined &&
       filters.collectionId !== null &&
@@ -1010,6 +1067,7 @@ export function createCatalog(dbPath) {
       size: "a.file_size DESC, a.id DESC",
       size_asc: "a.file_size ASC, a.id ASC",
       favorite: "a.favorite DESC, a.updated_at DESC, a.id DESC",
+      rating: "a.rating DESC, a.updated_at DESC, a.id DESC",
       modified: "a.mtime_ms DESC, a.id DESC",
     };
     const sort = sortMap[filters.sort] ?? sortMap.updated;
@@ -1051,6 +1109,14 @@ export function createCatalog(dbPath) {
     if (Object.hasOwn(patch, "favorite")) {
       assignments.push("favorite = ?");
       parameters.push(booleanValue(patch.favorite, "favorite") ? 1 : 0);
+    }
+    if (Object.hasOwn(patch, "rating")) {
+      const rating = Number(patch.rating);
+      if (!Number.isInteger(rating) || rating < 0 || rating > 5) {
+        throw new TypeError("rating must be an integer between 0 and 5.");
+      }
+      assignments.push("rating = ?");
+      parameters.push(rating);
     }
 
     const hasSourceUrl =
@@ -1104,6 +1170,48 @@ export function createCatalog(dbPath) {
       WHERE id = ?
     `).run(favorite ? 1 : 0, currentTimestamp(), id);
     return getAsset(id);
+  }
+
+  function deleteAsset(assetId) {
+    const id = positiveId(assetId, "assetId");
+    const asset = requireAssetRow(id);
+    if (asset.deleted_at !== null) {
+      throw new Error(`Asset already deleted: ${id}.`);
+    }
+    db.prepare(`
+      UPDATE assets
+      SET deleted_at = ?,
+          updated_at = ?
+      WHERE id = ?
+    `).run(currentTimestamp(), currentTimestamp(), id);
+    return getAsset(id);
+  }
+
+  function restoreAsset(assetId) {
+    const id = positiveId(assetId, "assetId");
+    const asset = requireAssetRow(id);
+    if (asset.deleted_at === null) {
+      throw new Error(`Asset is not deleted: ${id}.`);
+    }
+    db.prepare(`
+      UPDATE assets
+      SET deleted_at = NULL,
+          updated_at = ?
+      WHERE id = ?
+    `).run(currentTimestamp(), id);
+    return getAsset(id);
+  }
+
+  function purgeAsset(assetId) {
+    const id = positiveId(assetId, "assetId");
+    const asset = requireAssetRow(id);
+    if (asset.deleted_at === null) {
+      throw new Error(`Refusing to purge non-deleted asset: ${id}.`);
+    }
+    transaction(() => {
+      db.prepare("DELETE FROM assets WHERE id = ?").run(id);
+    });
+    return { id };
   }
 
   function saveAnalysis(
@@ -1204,6 +1312,9 @@ export function createCatalog(dbPath) {
     if (asset.file_status !== "available") {
       throw new Error(`Cannot enqueue missing asset: ${asset.id}.`);
     }
+    if (asset.deleted_at !== null) {
+      throw new Error(`Cannot enqueue deleted asset: ${asset.id}.`);
+    }
     const normalizedProvider = requiredString(provider, "provider", 100);
     const existing = db
       .prepare(`
@@ -1252,6 +1363,7 @@ export function createCatalog(dbPath) {
           INNER JOIN assets a ON a.id = j.asset_id
           WHERE j.state = 'queued'
             AND a.file_status = 'available'
+            AND a.deleted_at IS NULL
           ORDER BY j.created_at ASC, j.id ASC
           LIMIT 1
         `)
@@ -1377,6 +1489,8 @@ export function createCatalog(dbPath) {
       parameters.push(positiveId(filters.assetId, "assetId"));
     }
     const whereSql = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
+    const activeConditions =
+      whereSql === "" ? "" : `AND ${whereSql.replace(/^WHERE\s+/, "")}`;
     const sortMap = {
       oldest: "j.created_at ASC, j.id ASC",
       newest: "j.created_at DESC, j.id DESC",
@@ -1384,7 +1498,13 @@ export function createCatalog(dbPath) {
     };
     const sort = sortMap[filters.sort] ?? sortMap.newest;
     const total = db
-      .prepare(`SELECT COUNT(*) AS count FROM jobs j ${whereSql}`)
+      .prepare(`
+        SELECT COUNT(*) AS count
+        FROM jobs j
+        INNER JOIN assets a ON a.id = j.asset_id
+        WHERE a.deleted_at IS NULL
+          ${activeConditions}
+      `)
       .get(...parameters).count;
     const rows = db
       .prepare(`
@@ -1398,7 +1518,8 @@ export function createCatalog(dbPath) {
           a.analysis_status
         FROM jobs j
         INNER JOIN assets a ON a.id = j.asset_id
-        ${whereSql}
+        WHERE a.deleted_at IS NULL
+          ${activeConditions}
         ORDER BY ${sort}
         LIMIT ? OFFSET ?
       `)
@@ -1419,6 +1540,9 @@ export function createCatalog(dbPath) {
     const asset = requireAssetRow(job.asset_id);
     if (asset.file_status !== "available") {
       throw new Error(`Cannot retry job for missing asset: ${asset.id}.`);
+    }
+    if (asset.deleted_at !== null) {
+      throw new Error(`Cannot retry job for deleted asset: ${asset.id}.`);
     }
     const now = currentTimestamp();
     transaction(() => {
@@ -1565,9 +1689,10 @@ export function createCatalog(dbPath) {
           c.name,
           c.created_at,
           c.updated_at,
-          COUNT(ci.asset_id) AS item_count
+          COUNT(CASE WHEN a.deleted_at IS NULL THEN ci.asset_id END) AS item_count
         FROM collections c
         LEFT JOIN collection_items ci ON ci.collection_id = c.id
+        LEFT JOIN assets a ON a.id = ci.asset_id
         GROUP BY c.id
         ORDER BY c.name COLLATE NOCASE ASC
       `)
@@ -1618,6 +1743,7 @@ export function createCatalog(dbPath) {
         ${ASSET_SELECT}
         INNER JOIN collection_items ci ON ci.asset_id = a.id
         WHERE ci.collection_id = ?
+          AND a.deleted_at IS NULL
         ORDER BY ci.added_at DESC, a.id DESC
       `)
       .all(collection.id);
@@ -1676,6 +1802,7 @@ export function createCatalog(dbPath) {
       .prepare(`
         SELECT analysis_status AS value, COUNT(*) AS count
         FROM assets
+        WHERE deleted_at IS NULL
         GROUP BY analysis_status
         ORDER BY count DESC, value ASC
       `)
@@ -1685,6 +1812,7 @@ export function createCatalog(dbPath) {
       .prepare(`
         SELECT file_status AS value, COUNT(*) AS count
         FROM assets
+        WHERE deleted_at IS NULL
         GROUP BY file_status
         ORDER BY count DESC, value ASC
       `)
@@ -1694,7 +1822,8 @@ export function createCatalog(dbPath) {
       .prepare(`
         SELECT source_domain AS value, COUNT(*) AS count
         FROM assets
-        WHERE source_domain IS NOT NULL
+        WHERE deleted_at IS NULL
+          AND source_domain IS NOT NULL
           AND source_domain <> ''
         GROUP BY source_domain
         ORDER BY count DESC, value COLLATE NOCASE ASC
@@ -1704,9 +1833,11 @@ export function createCatalog(dbPath) {
     const tagCounts = new Map();
     const tagRows = db
       .prepare(`
-        SELECT tags_json
-        FROM analyses
-        WHERE is_current = 1
+        SELECT an.tags_json
+        FROM analyses an
+        INNER JOIN assets a ON a.id = an.asset_id
+        WHERE an.is_current = 1
+          AND a.deleted_at IS NULL
       `)
       .all();
     for (const row of tagRows) {
@@ -1747,6 +1878,9 @@ export function createCatalog(dbPath) {
     getAssetByRelativePath,
     updateAsset,
     setFavorite,
+    deleteAsset,
+    restoreAsset,
+    purgeAsset,
     saveAnalysis,
     enqueueAnalysis,
     claimNextJob,
