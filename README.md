@@ -1,3 +1,7 @@
+<p align="right">
+  <strong>简体中文</strong> | <a href="README.en.md">English</a>
+</p>
+
 <p align="center">
   <img src="public/assets/illustrations/648d8aed-99e7-4b23-bb2c-62364faeee0a.png" alt="Stylebase 吉祥物:戴着蓝色帽子的星星" width="120" />
 </p>

@@ -1,3 +1,7 @@
+<p align="right">
+  <a href="README.md">简体中文</a> | <strong>English</strong>
+</p>
+
 <p align="center">
   <img src="public/assets/illustrations/648d8aed-99e7-4b23-bb2c-62364faeee0a.png" alt="Stylebase mascot: a star wearing a blue hat" width="120" />
 </p>
