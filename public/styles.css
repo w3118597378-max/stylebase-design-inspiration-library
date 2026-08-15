@@ -2763,3 +2763,197 @@ svg {
     max-width: calc(100vw - 20px);
   }
 }
+
+/* Drag-and-drop import overlay */
+body.is-dragging::after {
+  content: "松开以汇入影像";
+  position: fixed;
+  inset: 12px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--graphite);
+  background: rgba(255, 253, 246, 0.9);
+  border: 2px dashed var(--blue);
+  border-radius: 13px;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.is-dragging::after {
+    transition: none;
+  }
+}
+
+/* Star rating */
+.star-rating,
+.inspector-rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star-rating {
+  position: absolute;
+  right: 8px;
+  bottom: 46px;
+  z-index: 3;
+  gap: 1px;
+  padding: 2px 4px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 7px;
+  background: rgba(255, 253, 246, 0.92);
+}
+
+.star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--rule-strong);
+}
+
+.star .icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  transition: transform 0.12s ease;
+}
+
+.star:hover .icon {
+  transform: scale(1.2);
+}
+
+.star.is-filled .icon {
+  fill: var(--yellow);
+  stroke: var(--rule-strong);
+}
+
+.star:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+.inspector-rating {
+  margin-top: 6px;
+}
+
+.inspector-rating-value {
+  margin-left: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star .icon {
+    transition: none;
+  }
+}
+
+/* Trash view */
+.asset-trash-toggle {
+  position: absolute;
+  top: 30px;
+  right: 8px;
+  z-index: 3;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 2px solid var(--rule-strong);
+  border-radius: 7px;
+  background: var(--paper-raised);
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.asset-card:hover .asset-trash-toggle,
+.asset-card:focus-within .asset-trash-toggle {
+  display: inline-flex;
+}
+
+.asset-trash-toggle .icon {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.asset-trash-toggle:hover {
+  color: var(--red);
+}
+
+.asset-card.is-trashed {
+  opacity: 0.92;
+}
+
+.asset-card.is-trashed .asset-open {
+  filter: grayscale(0.25);
+}
+
+.asset-open--static {
+  position: relative;
+  inset: auto;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 2px solid var(--rule);
+  border-radius: 9px;
+  background: var(--paper-muted);
+}
+
+.asset-open--static img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.asset-trash-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.asset-trash-actions .button {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
+.asset-trash-actions .icon {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  vertical-align: -2px;
+  margin-right: 3px;
+}
+
+.button--danger {
+  border: 2px solid var(--red);
+  color: var(--red);
+  background: var(--paper-raised);
+}
+
+.button--danger:hover {
+  background: var(--red-soft);
+}
