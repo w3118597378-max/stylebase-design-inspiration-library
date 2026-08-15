@@ -1,35 +1,35 @@
-# Stylebase ｜ 設計靈感資料庫
+# Stylebase ｜ 设计灵感数据库
 
-<img align="right" height="96px" src="public/assets/illustrations/648d8aed-99e7-4b23-bb2c-62364faeee0a.png" alt="Stylebase 吉祥物:戴著藍色帽子的星星" />
+<img align="right" height="96px" src="public/assets/illustrations/648d8aed-99e7-4b23-bb2c-62364faeee0a.png" alt="Stylebase 吉祥物:戴着蓝色帽子的星星" />
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D24-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)
 ![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)
 
-把散落的網頁、UI、產品與品牌設計截圖,整理成可搜尋、可分析、可轉成實作提示詞的本地資料庫。圖片與資料只留在自己電腦,只有你主動按下「送交 Codex」時,選取的圖片才會交給已登入的 Codex CLI 分析。
+把散落的网页、UI、产品与品牌设计截图,整理成可搜索、可分析、可转成实现提示词的本地数据库。图片与数据只留在自己电脑,只有你主动按下「送交 Codex」时,选中的图片才会交给已登录的 Codex CLI 分析。
 
-![Stylebase 主介面](docs/screenshots/stylebase-hero.png)
+![Stylebase 主界面](docs/screenshots/stylebase-hero.png)
 
 ## 特色
 
-- **本地優先,資料自己管** — 圖片與 SQLite 只存在本機,不呼叫 AI 就完全離線;不對區域網路或網際網路公開。
-- **零依賴,clone 即用** — 沒有第三方 npm 依賴,不需要 `npm install`,啟動即用。
-- **AI 分析,一張圖變實作提示** — 選圖按「送交 Codex」,得到 Visual DNA、色票、構圖與字體描述、實作建議與 Prompt Kit。
-- **手繪風工作台** — 素材網格、分析佇列、檢查器,從收藏、分析到落地一條線。
-- **完整整理工具** — 全文搜尋、領域與風格篩選、星級評分、收藏與資源回收筒。
+- **本地优先,数据自己管** — 图片与 SQLite 只存在本机,不调用 AI 就完全离线;不对局域网或互联网公开。
+- **零依赖,clone 即用** — 没有第三方 npm 依赖,不需要 `npm install`,启动即用。
+- **AI 分析,一张图变实现提示** — 选图按「送交 Codex」,得到 Visual DNA、色板、构图与字体描述、实现建议与 Prompt Kit。
+- **手绘风工作台** — 素材网格、分析队列、检查器,从收藏、分析到落地一条线。
+- **完整整理工具** — 全文搜索、领域与风格筛选、星级评分、收藏与回收站。
 
-## 快速開始
+## 快速开始
 
-需求:Windows 10／11、Node.js 24 或更新版本。零第三方依賴,不需要 `npm install`。
+需求:Windows 10／11、Node.js 24 或更新版本。零第三方依赖,不需要 `npm install`。
 
 ```powershell
 npm.cmd start
 ```
 
-開啟 <http://127.0.0.1:4177>,把圖片拖進視窗,或貼到 `library/inbox` 資料夾後按「重新掃描」。
+打开 <http://127.0.0.1:4177>,把图片拖进窗口,或放到 `library/inbox` 文件夹后按「重新扫描」。
 
-要用 AI 分析時,先安裝並登入 Codex CLI:
+要用 AI 分析时,先安装并登录 Codex CLI:
 
 ```powershell
 npm.cmd install -g @openai/codex
@@ -39,82 +39,82 @@ codex login
 ## 使用流程
 
 ```text
-圖片匯入
-  → 本地掃描與 SHA-256 去重
+图片导入
+  → 本地扫描与 SHA-256 去重
   → SQLite 索引
-  → 瀏覽／搜尋／人工補充來源
-  → 主動按「送交 Codex」
-  → 單工分析佇列
-  → JSON Schema 驗證
-  → Visual DNA／色票／Prompt Kit 回寫
+  → 浏览／搜索／人工补充来源
+  → 主动按「送交 Codex」
+  → 单工分析队列
+  → JSON Schema 验证
+  → Visual DNA／色板／Prompt Kit 回写
 ```
 
-1. 把圖片放進 `library/inbox`(可建立子資料夾),或直接拖進視窗／貼上剪貼簿。
-2. 在 Stylebase 按「重新掃描」。
-3. 選取圖片後按「送交 Codex」;同一時間只執行一個分析工作。
-4. 完成後檢查並修正 AI 分類、描述與提示詞。
-5. 補上來源、作者與授權備註,避免把靈感誤認成可直接複製的資產。
+1. 把图片放进 `library/inbox`(可建立子文件夹),或直接拖进窗口／粘贴剪贴板。
+2. 在 Stylebase 按「重新扫描」。
+3. 选中图片后按「送交 Codex」;同一时间只执行一个分析任务。
+4. 完成后检查并修正 AI 分类、描述与提示词。
+5. 补上来源、作者与授权备注,避免把灵感误认成可直接复制的资产。
 
-## 資料與隱私
+## 数据与隐私
 
 ```text
 stylebase-design-inspiration-library/
-├─ library/inbox/       原始圖片;Git 預設忽略
-├─ data/catalog.sqlite  本地 SQLite;Git 預設忽略
-├─ public/              HTML、CSS、瀏覽器程式
-├─ src/                 資料庫、掃描與 Codex Agent 介面
-├─ tests/               自動測試
-└─ docs/                架構、隱私與疑難排解
+├─ library/inbox/       原始图片;Git 默认忽略
+├─ data/catalog.sqlite  本地 SQLite;Git 默认忽略
+├─ public/              HTML、CSS、浏览器代码
+├─ src/                 数据库、扫描与 Codex Agent 接口
+├─ tests/               自动化测试
+└─ docs/                架构、隐私与疑难排解
 ```
 
-- 匯入、掃描、搜尋不會呼叫 AI;只有按「送交 Codex」才會把該張圖片傳至 Codex 服務。
-- Stylebase 不保存 API Key,沿用本機 Codex CLI 的登入狀態。
-- Agent 工作採一次性 session、唯讀 sandbox 與嚴格 JSON Schema。
-- `data/`、`.env`、SQLite 檔與 `library/inbox` 圖片都不會提交到 Git。
-- 請勿分析機密、個資或沒有權利上傳的圖片。
+- 导入、扫描、搜索不会调用 AI;只有按「送交 Codex」才会把该张图片传给 Codex 服务。
+- Stylebase 不保存 API Key,沿用本机 Codex CLI 的登录状态。
+- Agent 任务采用一次性 session、只读 sandbox 与严格 JSON Schema。
+- `data/`、`.env`、SQLite 文件与 `library/inbox` 图片都不会提交到 Git。
+- 请勿分析机密、个人资料或没有权利上传的图片。
 
-更多說明請讀[資料、隱私與圖片權利](docs/privacy-and-content-rights.md)。
+更多说明请读[数据、隐私与图片权利](docs/privacy-and-content-rights.md)。
 
-## 備份
+## 备份
 
-先停止 Stylebase,再備份 `library/`(原始圖片)與 `data/`(SQLite 索引與分析結果);還原時把兩個資料夾放回同一位置即可。原始圖片是主要資料來源,缺少資料庫時可重新掃描,但既有分析與人工欄位需從備份還原。
+先停止 Stylebase,再备份 `library/`(原始图片)与 `data/`(SQLite 索引与分析结果);还原时把两个文件夹放回同一位置即可。原始图片是主要数据来源,缺少数据库时可重新扫描,但已有的分析与人工字段需从备份还原。
 
-## 開發與驗證
+## 开发与验证
 
 ```powershell
-npm.cmd run check        # 語法檢查
-npm.cmd test             # 單元測試
-npm.cmd run validate     # 完整驗證:check + test + smoke + release 檢查
+npm.cmd run check        # 语法检查
+npm.cmd test             # 单元测试
+npm.cmd run validate     # 完整验证:check + test + smoke + release 检查
 ```
 
-`validate:release` 會檢查必要文件、Markdown 內部連結、版本與授權,並阻止 `.env`、SQLite、圖片素材或常見 Token 格式被包進公開版本。
+`validate:release` 会检查必要文件、Markdown 内部链接、版本与授权,并阻止 `.env`、SQLite、图片素材或常见 Token 格式被包进公开版本。
 
-## 已知邊界
+## 已知边界
 
-- 目前以 Windows 10／11、Node.js 24 為主要驗證環境。
-- 支援 JPG、JPEG、PNG、WebP、GIF,不處理影片與 PDF。
-- AI 分析是可編輯的設計觀察,不代表事實、權利狀態或專業判斷。
-- `node:sqlite` 在目前 Node 版本可能顯示 ExperimentalWarning;專案測試會驗證所需功能。
+- 目前以 Windows 10／11、Node.js 24 为主要验证环境。
+- 支持 JPG、JPEG、PNG、WebP、GIF,不处理视频与 PDF。
+- AI 分析是可编辑的设计观察,不代表事实、权利状态或专业判断。
+- `node:sqlite` 在当前 Node 版本可能显示 ExperimentalWarning;项目测试会验证所需功能。
 
-## 授權
+## 授权
 
-程式碼與文件採 [MIT License](LICENSE)。
+代码与文档采用 [MIT License](LICENSE)。
 
-你匯入的圖片不會因為放進 Stylebase 就自動改採 MIT。圖片仍受原作者、來源平台與個別授權條款約束;公開分享前請自行確認權利。
+你导入的图片不会因为放进 Stylebase 就自动采用 MIT。图片仍受原作者、来源平台与个别授权条款约束;公开分享前请自行确认权利。
 
-## 文件
+## 文档
 
-- [系統架構與 Agent Workflow](docs/architecture.md)
-- [資料、隱私與圖片權利](docs/privacy-and-content-rights.md)
-- [疑難排解](docs/troubleshooting.md)
-- [自動驗證與人工驗收](docs/verification.md)
+- [系统架构与 Agent Workflow](docs/architecture.md)
+- [数据、隐私与图片权利](docs/privacy-and-content-rights.md)
+- [疑难排解](docs/troubleshooting.md)
+- [自动验证与人工验收](docs/verification.md)
 
-## 致謝
+## 致谢
 
-本專案衍生自 [Winston-10xAI-Toolspack](https://github.com/Winston774/Winston-10xAI-Toolspack/tree/main/weeks/2026/2026-w31-stylebase-design-inspiration-library/completed/stylebase-design-inspiration-library) 中的 Stylebase 設計靈感資料庫示例專案(2026-W31 SKOOL 開源專案, [MIT License](LICENSE))。在此基礎上進行 UI 重塑(手繪風改版、中英雙語介面、檢查器／佇列／頂欄重設計)與功能擴充(拖拽匯入、星級評分、資源回收筒)。
+本项目衍生自 [Winston-10xAI-Toolspack](https://github.com/Winston774/Winston-10xAI-Toolspack/tree/main/weeks/2026/2026-w31-stylebase-design-inspiration-library/completed/stylebase-design-inspiration-library) 中的 Stylebase 设计灵感数据库示例项目(2026-W31 SKOOL 开源项目, [MIT License](LICENSE))。在此基础上进行 UI 重塑(手绘风改版、中英双语界面、检查器／队列／顶栏重设计)与功能扩展(拖拽导入、星级评分、回收站)。
 
 ## 版本
 
-- `v1.2.0`／2026-08:中英雙語介面、手繪風改版、軟刪除與回收站。
+- `v1.2.0`／2026-08:中英双语界面、手绘风改版、软删除与回收站。
 
-完整紀錄見 [CHANGELOG.md](CHANGELOG.md)。
+完整记录见 [CHANGELOG.md](CHANGELOG.md)。
