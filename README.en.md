@@ -1,13 +1,19 @@
-# Stylebase ｜ Design Inspiration Library
+<p align="center">
+  <img src="public/assets/illustrations/648d8aed-99e7-4b23-bb2c-62364faeee0a.png" alt="Stylebase mascot: a star wearing a blue hat" width="120" />
+</p>
 
-<img align="right" height="96px" src="public/assets/illustrations/648d8aed-99e7-4b23-bb2c-62364faeee0a.png" alt="Stylebase mascot: a star wearing a blue hat" />
+<h1 align="center">Stylebase</h1>
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Node](https://img.shields.io/badge/node-%3E%3D24-green.svg)
-![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)
-![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)
+<p align="center">
+  A local-first library that turns scattered web, UI, product, and brand design screenshots into a searchable, analyzable collection of implementation prompts. Images and data stay on your machine; nothing leaves it unless you explicitly hit <strong>Send to Codex</strong>, which hands the selected image to your logged-in Codex CLI.
+</p>
 
-A local-first library that turns scattered web, UI, product, and brand design screenshots into a searchable, analyzable collection of implementation prompts. Images and data stay on your machine; nothing leaves it unless you explicitly hit **Send to Codex**, which hands the selected image to your logged-in Codex CLI.
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D24-green.svg" alt="Node.js >= 24" />
+  <img src="https://img.shields.io/badge/platform-Windows-lightgrey.svg" alt="Windows" />
+  <img src="https://img.shields.io/badge/dependencies-0-brightgreen.svg" alt="Zero dependencies" />
+</p>
 
 ![Stylebase main interface](docs/screenshots/stylebase-hero.png)
 
