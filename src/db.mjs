@@ -1028,7 +1028,10 @@ export function createCatalog(dbPath) {
       parameters.push(booleanValue(filters.favorite, "favorite") ? 1 : 0);
     }
 
-    const trashed = booleanValue(filters.trashed ?? false, "trashed");
+    const trashed =
+      filters.trashed === ""
+        ? false
+        : booleanValue(filters.trashed ?? false, "trashed");
     where.push(trashed ? "a.deleted_at IS NOT NULL" : "a.deleted_at IS NULL");
 
     if (

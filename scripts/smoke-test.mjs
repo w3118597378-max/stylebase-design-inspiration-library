@@ -96,8 +96,107 @@ try {
     throw new Error("Content-Security-Policy is missing.");
   }
 
+  const ONE_PIXEL_PNG =
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+  const importResponse = await fetch(`${baseUrl}/api/import`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: "smoke-one",
+      type: "image/png",
+      data: `data:image/png;base64,${ONE_PIXEL_PNG}`,
+      sourceUrl: "",
+      rightsNote: "",
+    }),
+    signal: AbortSignal.timeout(20_000),
+  });
+  if (importResponse.status !== 201) {
+    throw new Error(`Import returned ${importResponse.status}.`);
+  }
+  const imported = (await importResponse.json()).asset;
+  const assetId = imported.id;
+
+  const ratedResponse = await fetch(`${baseUrl}/api/assets/${assetId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rating: 4 }),
+    signal: AbortSignal.timeout(20_000),
+  });
+  const rated = await ratedResponse.json();
+  if (!ratedResponse.ok || rated.rating !== 4) {
+    throw new Error(`Rating PATCH failed: ${ratedResponse.status}`);
+  }
+
+  const badRatingResponse = await fetch(`${baseUrl}/api/assets/${assetId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rating: 99 }),
+    signal: AbortSignal.timeout(20_000),
+  });
+  if (badRatingResponse.status !== 400) {
+    throw new Error(
+      `Out-of-range rating should be 400, got ${badRatingResponse.status}.`,
+    );
+  }
+
+  const deletedResponse = await fetch(`${baseUrl}/api/assets/${assetId}`, {
+    method: "DELETE",
+    signal: AbortSignal.timeout(20_000),
+  });
+  const deleted = await deletedResponse.json();
+  if (!deletedResponse.ok || !deleted.deletedAt) {
+    throw new Error(`Soft delete failed: ${deletedResponse.status}`);
+  }
+  const activeAfterDelete = await fetch(`${baseUrl}/api/assets`).then((r) =>
+    r.json(),
+  );
+  if (activeAfterDelete.total !== 0) {
+    throw new Error("Soft-deleted asset still appears in the active list.");
+  }
+  const trashedResponse = await fetch(
+    `${baseUrl}/api/assets?trashed=1`,
+  ).then((r) => r.json());
+  if (trashedResponse.total !== 1 || trashedResponse.items[0].id !== assetId) {
+    throw new Error("Trashed view does not contain the deleted asset.");
+  }
+
+  const restoreResponse = await fetch(
+    `${baseUrl}/api/assets/${assetId}/restore`,
+    {
+      method: "POST",
+      signal: AbortSignal.timeout(20_000),
+    },
+  );
+  const restored = await restoreResponse.json();
+  if (!restoreResponse.ok || restored.deletedAt !== null) {
+    throw new Error(`Restore failed: ${restoreResponse.status}`);
+  }
+
+  const redeleteResponse = await fetch(`${baseUrl}/api/assets/${assetId}`, {
+    method: "DELETE",
+    signal: AbortSignal.timeout(20_000),
+  });
+  if (!redeleteResponse.ok) {
+    throw new Error(`Second soft delete failed: ${redeleteResponse.status}`);
+  }
+
+  const purgeResponse = await fetch(
+    `${baseUrl}/api/assets/${assetId}?permanent=1`,
+    { method: "DELETE", signal: AbortSignal.timeout(20_000) },
+  );
+  if (purgeResponse.status !== 204) {
+    throw new Error(`Purge returned ${purgeResponse.status}.`);
+  }
+  const goneResponse = await fetch(`${baseUrl}/api/assets/${assetId}`);
+  if (goneResponse.status !== 404) {
+    throw new Error(`Purged asset should be 404, got ${goneResponse.status}.`);
+  }
+
   console.log(
     `Smoke test passed: HTTP 200, v${bootstrap.version}, empty database, CSP present.`,
+  );
+  console.log(
+    `Smoke test passed: import, rating, soft delete, trashed view, restore, purge.`,
   );
 } catch (error) {
   if (output.trim()) console.error(output.trim());

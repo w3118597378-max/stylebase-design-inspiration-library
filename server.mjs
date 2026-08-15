@@ -1,5 +1,5 @@
 import { createReadStream, watch } from "node:fs";
-import { readFile, stat } from "node:fs/promises";
+import { readFile, stat, unlink } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -255,6 +255,7 @@ async function handleApi(request, response, url) {
       status: url.searchParams.get("status") || "",
       domain: url.searchParams.get("domain") || "",
       favorite: url.searchParams.get("favorite") || "",
+      trashed: url.searchParams.get("trashed") || "",
       collectionId: url.searchParams.get("collectionId") || "",
       sort: url.searchParams.get("sort") || "newest",
       limit: numberInRange(url.searchParams.get("limit"), 80, 1, 200),
@@ -278,6 +279,9 @@ async function handleApi(request, response, url) {
     });
     const scan = await performScan();
     let asset = catalog.getAssetByRelativePath(uploaded.relativePath);
+    if (asset?.deletedAt) {
+      asset = catalog.restoreAsset(asset.id);
+    }
     if (asset && (body.sourceUrl || body.rightsNote)) {
       asset = catalog.updateAsset(asset.id, {
         sourceUrl: body.sourceUrl || "",
@@ -375,6 +379,7 @@ async function handleApi(request, response, url) {
         "sourceUrl",
         "rightsNote",
         "favorite",
+        "rating",
       ]) {
         if (Object.hasOwn(body, key)) allowed[key] = body[key];
       }
@@ -383,6 +388,36 @@ async function handleApi(request, response, url) {
       sendJson(response, 200, safeAsset(asset));
       return true;
     }
+    if (method === "DELETE") {
+      const asset = catalog.getAsset(id);
+      if (!asset) throw new ApiError(404, "找不到这笔图片。");
+      if (url.searchParams.get("permanent") === "1") {
+        if (!asset.deletedAt) {
+          throw new ApiError(409, "必须先移入回收筒，才能彻底删除。");
+        }
+        catalog.purgeAsset(id);
+        await unlinkAssetFile(asset);
+        sendEmpty(response);
+      } else {
+        if (asset.deletedAt) {
+          throw new ApiError(409, "这笔图片已在回收筒中。");
+        }
+        sendJson(response, 200, safeAsset(catalog.deleteAsset(id)));
+      }
+      return true;
+    }
+  }
+
+  const restoreMatch = pathname.match(/^\/api\/assets\/([^/]+)\/restore$/);
+  if (method === "POST" && restoreMatch) {
+    const id = decodeURIComponent(restoreMatch[1]);
+    const asset = catalog.getAsset(id);
+    if (!asset) throw new ApiError(404, "找不到这笔图片。");
+    if (!asset.deletedAt) {
+      throw new ApiError(409, "这笔图片不在回收筒中。");
+    }
+    sendJson(response, 200, safeAsset(catalog.restoreAsset(id)));
+    return true;
   }
 
   const analyzeMatch = pathname.match(
@@ -441,6 +476,15 @@ async function handleApi(request, response, url) {
   }
 
   return false;
+}
+
+async function unlinkAssetFile(asset) {
+  const filePath = resolveAssetPath(INBOX_DIR, asset.relativePath);
+  try {
+    await unlink(filePath);
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+  }
 }
 
 async function serveMedia(response, id) {
@@ -506,7 +550,12 @@ const server = http.createServer(async (request, response) => {
     }
     await serveStatic(response, decodeURIComponent(url.pathname));
   } catch (error) {
-    const status = error instanceof ApiError ? error.status : 500;
+    const status =
+      error instanceof ApiError
+        ? error.status
+        : error instanceof TypeError || error instanceof RangeError
+          ? 400
+          : 500;
     const message =
       error instanceof ApiError
         ? error.message
