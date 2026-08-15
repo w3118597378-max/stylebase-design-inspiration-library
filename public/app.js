@@ -1560,6 +1560,7 @@ function renderInspector() {
   }
 
   elements.inspectorContent.innerHTML = `
+    <div class="inspector-head">
     <div class="inspector-top">
       <div class="inspector-title">
         <p>${escapeHTML(stateLabel(asset.status))}</p>
@@ -1595,6 +1596,7 @@ function renderInspector() {
       <button type="button" data-inspector-jump="implementation">实作输出</button>
       <button type="button" data-inspector-jump="management">资料管理</button>
     </nav>
+    </div>
 
     ${
       asset.synthetic
